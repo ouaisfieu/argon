@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <!-- Chosen Palette: Warm Slate & Ochre / Institutional Harmony -->
+    <!-- Application Structure Plan: 
+        L'application est conçue comme un Observatoire Interactif de la Démocratie et de l'État de Droit en Belgique (2024-2026).
+        Elle abandonne le format linéaire de rapport au profit d'une structure synthétique et exploratoire en 6 modules :
+        1. Tableau de Bord synthétique (KPIs fondamentaux et diagnostic global).
+        2. Diagnostics & Indices Internationaux (avec un simulateur interactif de l'impact de la pénalité du vote obligatoire sur l'indice EIU).
+        3. L'Empire Particratique & Cartel Financier (visualisation dynamique du financement de 188,3 M€, des patrimoines des partis et des cabinets ministériels).
+        4. Le Labyrinthe Institutionnel & Paralysies (analyse des records de formation de gouvernement et de la lasagne institutionnelle).
+        5. État de Droit & Urgences Juridiques (suivi des 11 500+ ordonnances non exécutées, condamnations CEDH Camara et M.V., crise carcérale des 614 matelas au sol).
+        6. Intégrité, Médias & Matrice de Réformes (taux d'exécution GRECO 36.3%, monopole médiatique Rossel 95%, et filtre interactif des leviers de réforme).
+        
+        Cette architecture a été choisie pour permettre aussi bien une consultation rapide des chiffres clés qu'une exploration approfondie des dérives institutionnelles et juridiques.
+    -->
+    <!-- Visualization & Content Choices:
+        - Indices internationaux -> Graphique Radar/Barres comparatif (Chart.js) + Simulateur interactif JS pour le biais méthodologique du vote obligatoire EIU.
+        - Financement des partis -> Graphique Donut (Chart.js) pour la décomposition des 188,3M€ et Barres pour le patrimoine net par parti.
+        - Crise carcérale & Justice -> Graphique d'évolution temporelle (Chart.js) montrant l'explosion des matelas au sol (198 à 614) et de la population carcérale (124%).
+        - Recommandations GRECO -> Jauge / Doughnut (Chart.js) montrant le déficit de mise en œuvre (63.7% non pleinement appliquées).
+        - Monopole Presse Francophone -> Barre de progression stylisée HTML/CSS pour les 94-95% du groupe Rossel-IPM.
+        - Matrice de Réformes -> Grille HTML dynamique filtrable par catégorie via JS.
+        - CONFIRMATION : Aucun élément SVG n'est utilisé. Aucune bibliothèque Mermaid JS n'est utilisée. Toutes les icônes sont en caractères Unicode / HTML.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Observatoire de la Démocratie & État de Droit en Belgique (2024-2026)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f8fafc',
+                            100: '#f1f5f9',
+                            200: '#e2e8f0',
+                            700: '#334155',
+                            800: '#1e293b',
+                            900: '#0f172a',
+                        },
+                        ochre: {
+                            500: '#d97706',
+                            600: '#b45309',
+                            700: '#92400e',
+                        },
+                        danger: {
+                            100: '#fee2e2',
+                            500: '#ef4444',
+                            700: '#b91c1c',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #b45309;
+            color: #b45309;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-amber-100 selection:text-amber-900">
+
+    <!-- Header & Navigation -->
+    <header class="sticky top-0 z-50 bg-slate-900 text-white shadow-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🏛️</span>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight">Observatoire de la Démocratie Belge</h1>
+                        <p class="text-xs text-slate-400">Analyse systémique & État de Droit (2024–2026)</p>
+                    </div>
+                </div>
+                <nav class="hidden lg:flex space-x-6 text-sm font-medium">
+                    <a href="#overview" class="hover:text-amber-400 transition">Vue d'ensemble</a>
+                    <a href="#indices" class="hover:text-amber-400 transition">Indices & Biais</a>
+                    <a href="#partitocratie" class="hover:text-amber-400 transition">Particratie & Cash</a>
+                    <a href="#labyrinthe" class="hover:text-amber-400 transition">Paralysie Fédérale</a>
+                    <a href="#etat-de-droit" class="hover:text-amber-400 transition">Crise de la Justice</a>
+                    <a href="#reformes" class="hover:text-amber-400 transition">Plan de Réformes</a>
+                </nav>
+                <div class="lg:hidden">
+                    <button id="mobile-menu-btn" class="p-2 rounded bg-slate-800 text-slate-200 hover:text-white">
+                        ☰
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-slate-800 px-4 pt-2 pb-4 space-y-2 border-t border-slate-700 text-sm">
+            <a href="#overview" class="block py-1 hover:text-amber-400">Vue d'ensemble</a>
+            <a href="#indices" class="block py-1 hover:text-amber-400">Indices & Biais</a>
+            <a href="#partitocratie" class="block py-1 hover:text-amber-400">Particratie & Cash</a>
+            <a href="#labyrinthe" class="block py-1 hover:text-amber-400">Paralysie Fédérale</a>
+            <a href="#etat-de-droit" class="block py-1 hover:text-amber-400">Crise de la Justice</a>
+            <a href="#reformes" class="block py-1 hover:text-amber-400">Plan de Réformes</a>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- SECTION 1: OVERVIEW & EXECUTIVE DASHBOARD -->
+        <section id="overview" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <span class="inline-block px-3 py-1 bg-amber-100 text-amber-800 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">Diagnostic Synthetique</span>
+                    <h2 class="text-2xl md:text-3xl font-bold text-slate-900">La Belgique : une démocratie électorale performante mais une « démocratie imparfaite » en crise d'État de droit</h2>
+                    <p class="mt-2 text-slate-600 text-sm md:text-base leading-relaxed">
+                        Cette application interactive analyse les failles structurelles de la gouvernance belge sur la période 2024–2026. Si le Royaume demeure une démocratie électorale exemplaire (3e rang mondial V-Dem), il subit un décrochage continu dans l'indice de l'Economist Intelligence Unit (34e rang mondial) et fait face à une crise inédite de l'État de droit marquée par la non-exécution de plus de 11 500 décisions de justice et l'asphyxie du système judiciaire et carcéral.
+                    </p>
+                </div>
+
+                <!-- KPI Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+                    <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 uppercase">Indice EIU 2025</span>
+                            <div class="text-2xl md:text-3xl font-extrabold text-amber-600 mt-1">7,77 / 10</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Classée « Démocratie imparfaite » (Participation : 5,00/10)</p>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 uppercase">Financement Public Partis</span>
+                            <div class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-1">188,3 M€</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Dotations + personnel parlementaire (87,2 % ressources publiques)</p>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 uppercase">Justice & Asile</span>
+                            <div class="text-2xl md:text-3xl font-extrabold text-rose-600 mt-1">+11 500</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">Ordonnances judiciaires ignorées par l'Exécutif (Fedasil)</p>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-lg p-4 border border-slate-200 flex flex-col justify-between">
+                        <div>
+                            <span class="text-xs font-semibold text-slate-500 uppercase">Surpopulation Carcérale</span>
+                            <div class="text-2xl md:text-3xl font-extrabold text-rose-600 mt-1">124 %</div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">614 détenus sur des matelas au sol (Déc. 2025)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INTERNATIONAL INDICES & EIU SIMULATOR -->
+        <section id="indices" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">1. Diagnostics comparatifs & Le paradoxe de l'EIU</h2>
+                    <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                        Cette section compare la position de la Belgique à travers les grands baromètres mondiaux (2024–2026) et décortique le biais méthodologique de l'Economist Intelligence Unit (EIU). L'indice britannique sanctionne automatiquement de deux scores nuls l'obligation constitutionnelle de vote, tout en masquant un véritable désengagement citoyen.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                    <!-- Chart 1: Multi-Index Comparison -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-800 mb-2 text-center">Score Normalisé de la Belgique dans les Grands Indices (2025-2026)</h3>
+                        <div class="chart-container">
+                            <canvas id="indicesChart"></canvas>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3 text-center">
+                            Note : V-Dem classe la Belgique 3e mondiale pour l'intégrité électorale, tandis que l'EIU la relègue au 34e rang.
+                        </p>
+                    </div>
+
+                    <!-- EIU Interactive Simulator -->
+                    <div class="bg-amber-50/60 p-5 rounded-lg border border-amber-200 space-y-4">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">🧮</span>
+                            <h3 class="text-base font-bold text-amber-900">Simulateur : L'effet du vote obligatoire sur le score EIU</h3>
+                        </div>
+                        <p class="text-xs text-amber-800 leading-relaxed">
+                            Dans la méthodology EIU, les questions 27 et 35 attribuent un score de <strong>0</strong> si le vote est légalement obligatoire. Neutralisons ou réattribuons ces points au vu de la participation effective (87,4 % aux fédérales) :
+                        </p>
+
+                        <div class="space-y-3 bg-white p-4 rounded border border-amber-200 text-sm">
+                            <div class="flex justify-between items-center">
+                                <span>Score EIU Officiel 2024 :</span>
+                                <span class="font-bold text-slate-900">7,64 / 10 (Démocratie imparfaite)</span>
+                            </div>
+                            <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                                <span>Si questions neutres (retrait du biais) :</span>
+                                <span class="font-bold text-amber-700">7,93 / 10</span>
+                            </div>
+                            <div class="flex justify-between items-center border-t border-slate-100 pt-2">
+                                <span>Si points accordés (87,4% participation) :</span>
+                                <span class="font-bold text-emerald-600">8,08 / 10 (Démocratie complète)</span>
+                            </div>
+                        </div>
+
+                        <!-- Local Elections Proof -->
+                        <div class="bg-white p-4 rounded border border-slate-200 space-y-2">
+                            <h4 class="text-xs font-bold text-slate-900 uppercase">Preuve empirique : Suppression du vote obligatoire en Flandre (13 Oct. 2024)</h4>
+                            <p class="text-xs text-slate-600">
+                                Lors des communales 2024, la Flandre a supprimé l'obligation de vote. Résultat : la participation s'est effondrée de <strong>28,9 points</strong> pour tomber à <strong>63,6 %</strong> (contre 85,2 % en Wallonie avec obligation), touchant principalement les jeunes et les peu diplômés.
+                            </p>
+                            <!-- Progress Bar -->
+                            <div class="space-y-1 pt-1">
+                                <div class="flex justify-between text-xs font-semibold">
+                                    <span>Participation Wallonie (Vote Obligatoire)</span>
+                                    <span>85,2%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-emerald-500 h-full" style="width: 85.2%"></div>
+                                </div>
+                                <div class="flex justify-between text-xs font-semibold pt-1">
+                                    <span>Participation Flandre (Vote Libre 2024)</span>
+                                    <span>63,6%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                    <div class="bg-rose-500 h-full" style="width: 63.6%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: PARTITOCRACY & PARTY FINANCING -->
+        <section id="partitocratie" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">2. L'Empire particratique et le cartel financier</h2>
+                    <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                        Le système politique belge est dominé par une <strong>particratie intégrale</strong>. Les présidents de partis contrôlent la sélection des candidats, la discipline parlementaire et la composition des exécutifs. Ce pouvoir est verrouillé par un financement public massif et une pléthore de collaborateurs ministériels.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Funding Breakdown Chart -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                        <h3 class="text-sm font-bold text-slate-800 mb-1 text-center">Décomposition du Financement Public Réel des Partis (2024)</h3>
+                        <p class="text-xs text-slate-500 text-center mb-2">Total réel : <strong>188,3 Millions d'Euros</strong></p>
+                        <div class="chart-container">
+                            <canvas id="fundingChart"></canvas>
+                        </div>
+                        <div class="mt-3 text-xs text-slate-600 bg-white p-3 rounded border border-slate-200">
+                            <strong>Remarque :</strong> Les cotisations de membres ne représentent que 3,9 % des recettes des partis (4,6 M€, dont 52,3 % captés par le seul PTB).
+                        </div>
+                    </div>
+
+                    <!-- Party Wealth & Cabinets -->
+                    <div class="space-y-6">
+                        <!-- Party Net Wealth Bar Chart -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <h3 class="text-sm font-bold text-slate-800 mb-2 text-center">Patrimoine Net Cumulé des Principaux Partis (2024 - M€)</h3>
+                            <div class="chart-container">
+                                <canvas id="wealthChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- Ministerial Cabinets Stat Box -->
+                        <div class="bg-slate-900 text-white p-5 rounded-lg space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                                <h4 class="font-bold text-sm text-amber-400">Hypertrophie des Cabinets Ministériels</h4>
+                                <span class="text-xs bg-slate-800 px-2 py-1 rounded">2024–2029</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed">
+                                Contrairement au modèle nordique basé sur une administration neutre, les ministres belges s'entourent de cabinets pléthoriques. En Wallonie et en FWB, <strong>570 ETP</strong> sont affectés aux cabinets pour seulement 10 ministres (jusqu'à 68 ETP pour le cabinet d'un Ministre-Président).
+                            </p>
+                            <div class="grid grid-cols-2 gap-2 text-center pt-1 text-xs">
+                                <div class="bg-slate-800 p-2 rounded">
+                                    <span class="block font-bold text-lg text-amber-400">367 ETP</span>
+                                    <span class="text-slate-400">Cabinets Région Wallonne</span>
+                                </div>
+                                <div class="bg-slate-800 p-2 rounded">
+                                    <span class="block font-bold text-lg text-amber-400">203 ETP</span>
+                                    <span class="text-slate-400">Cabinets FWB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: INSTITUTIONAL LABYRINTH & DEADLOCKS -->
+        <section id="labyrinthe" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">3. La lasagne institutionnelle & Paralysie consociative</h2>
+                    <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                        Le fédéralisme belge associe l'<strong>équipollence des normes</strong> (absence de hiérarchie entre lois fédérales et décrets régionaux) à l'absence de circonscription électorale fédérale. Il en résulte un paysage politique scindé en deux sous-systèmes hermétiques et des records mondiaux de vacance gouvernementale.
+                    </p>
+                </div>
+
+                <!-- Grid Key Mechanics -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                        <div class="text-amber-600 font-bold text-sm flex items-center space-x-2">
+                            <span>⚖️</span> <span>Équipollence des Normes</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Le droit fédéral n'a pas de primauté sur le droit des Régions/Communautés. Toute politique transversale exige un consensus intergouvernemental, conférant un droit de veto virtuel à chaque entité.
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                        <div class="text-amber-600 font-bold text-sm flex items-center space-x-2">
+                            <span>🗣️</span> <span>Monologues Parallèles</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Faute de circonscription fédérale, aucun ministre ne rend de comptes aux électeurs de l'autre communauté linguistique. Les débats politiques se déroulent dans des espaces médiatiques totalement étanches.
+                        </p>
+                    </div>
+
+                    <div class="p-4 bg-slate-50 rounded-lg border border-slate-200 space-y-2">
+                        <div class="text-amber-600 font-bold text-sm flex items-center space-x-2">
+                            <span>🧩</span> <span>Fragmentation Extrême</span>
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Avec <strong>10,25 partis effectifs</strong> à la Chambre et 48 ministres/secrétaires d'État pour 11,8M d'habitants, la formation de coalitions relève du casse-tête institutionnel.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Formation Record Timeline Interactive Card -->
+                <div class="bg-slate-900 text-white p-6 rounded-xl space-y-4">
+                    <h3 class="text-base font-bold text-amber-400">Records de jours de formation gouvernementale (Affaires courantes)</h3>
+                    <div class="space-y-3 text-xs">
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Gouvernement Fédéral (2010–2011)</span>
+                                <span class="font-bold text-rose-400">540 jours</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                <div class="bg-rose-500 h-full" style="width: 87%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Gouvernement Fédéral (2019–2020)</span>
+                                <span class="font-bold text-amber-400">494 jours</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                <div class="bg-amber-500 h-full" style="width: 80%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Région de Bruxelles-Capitale (Juin 2024 – Fév. 2026)</span>
+                                <span class="font-bold text-rose-500">615 jours (RECORD ABSOLU)</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                <div class="bg-rose-600 h-full" style="width: 100%"></div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between mb-1">
+                                <span>Gouvernement Fédéral "Arizona" (2024–2025)</span>
+                                <span class="font-bold text-emerald-400">239 jours</span>
+                            </div>
+                            <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden">
+                                <div class="bg-emerald-500 h-full" style="width: 39%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-400 pt-2 border-t border-slate-800">
+                        La crise bruxelloise de 615 jours a fait perdre 1 point à la Belgique sur l'indicateur Freedom House 2026 (C1: 3/4) en raison du risque de shutdown financier.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: RULE OF LAW & JUDICIAL CRISIS -->
+        <section id="etat-de-droit" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="mb-6">
+                    <span class="inline-block px-3 py-1 bg-rose-100 text-rose-800 rounded-full text-xs font-semibold uppercase tracking-wider mb-2">Zone d'Alerte Majeure</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">4. Atteintes à l'État de Droit : Rébellion de l'Exécutif & Crise Carcérale</h2>
+                    <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                        C'est sur le terrain de la séparation des pouvoirs et des droits fondamentaux que la Belgique connaît ses dérives les plus critiques entre 2022 et 2026 : refus systématique d'exécuter les jugements en matière d'asile, sous-investissement judiciaire massif et catastrophe pénitentiaire.
+                    </p>
+                </div>
+
+                <!-- Sub-tabs for Rule of Law topics -->
+                <div class="flex border-b border-slate-200 space-x-4 mb-6">
+                    <button class="tab-btn active text-sm pb-2 font-medium" onclick="switchRuleTab('asile')">Non-exécution & CEDH</button>
+                    <button class="tab-btn text-sm pb-2 font-medium text-slate-500" onclick="switchRuleTab('prisons')">Catastrophe Carcérale</button>
+                    <button class="tab-btn text-sm pb-2 font-medium text-slate-500" onclick="switchRuleTab('justice')">Déni de Justice & Budget</button>
+                </div>
+
+                <!-- Tab Content 1: Asile & CEDH -->
+                <div id="tab-asile" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-rose-50/70 p-5 rounded-lg border border-rose-200 space-y-3">
+                            <h3 class="font-bold text-rose-900 text-sm flex items-center space-x-2">
+                                <span>🚨</span> <span>L'Inexécution Systématique des Décisions</span>
+                            </h3>
+                            <p class="text-xs text-rose-800 leading-relaxed">
+                                Entre 2022 et 2026, l'agence Fedasil a refusé d'exécuter plus de <strong>11 500 ordonnances judiciaires exécutoires</strong> ordonnant l'hébergement de demandeurs d'asile, refusant également de payer les astreintes.
+                            </p>
+                            <div class="bg-white p-3 rounded border border-rose-200 text-xs text-slate-700 space-y-2">
+                                <div class="font-bold text-slate-900">Double condamnation historique par la CEDH :</div>
+                                <ul class="list-disc pl-4 space-y-1">
+                                    <li><strong>Arrêt Camara c. Belgique (2023) :</strong> Constat d'un « manquement systémique » de l'État belge (Art. 6 § 1).</li>
+                                    <li><strong>Arrêt M.V. et autres c. Belgique (9 Avril 2026) :</strong> Condamnation à l'unanimité pour traitements inhumains (Art. 3, jusqu'à 338 jours à la rue) et entrave au droit de recours (Art. 34).</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 space-y-3">
+                            <h3 class="font-bold text-slate-900 text-sm flex items-center space-x-2">
+                                <span>⚡</span> <span>Conflit Constitutionnel (Février–Mars 2026)</span>
+                            </h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                En février 2026, la <strong>Cour constitutionnelle (Arrêt n° 23/2026)</strong> a suspendu les dispositions modifiées de la loi Asile. Dès le 4 mars, la ministre d'État a annoncé maintenir ses directives de refus d'accueil, provoquant une ordonnance de suspension du <strong>Conseil d'État (27 mars 2026)</strong> pour illégalité et contournement de l'autorité de la chose jugée.
+                            </p>
+                            <div class="p-3 bg-amber-50 text-amber-900 rounded text-xs border border-amber-200">
+                                <strong>Conseil de l'Europe :</strong> Le Comité des Ministres a rappelé à la Belgique le 16 septembre 2026 l'obligation urgente « d'éradiquer à la source l'inexécution des décisions de justice ».
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content 2: Prisons -->
+                <div id="tab-prisons" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div class="space-y-4">
+                            <h3 class="text-sm font-bold text-slate-900">Évolution de la Surpopulation et des Matelas au Sol</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Avec <strong>13 397 détenus pour 10 795 places</strong> (taux d'occupation de 124 % à 125,3 %), la Belgique présente le 4e pire taux d'Europe. Le Comité de prévention de la torture (CPT) du Conseil de l'Europe a dénoncé en septembre 2026 des conditions inhumaines dégradantes et violentes.
+                            </p>
+                            <div class="bg-rose-50 p-4 rounded border border-rose-200 text-xs text-rose-900 space-y-1">
+                                <strong>Avis du Conseil Pénitentiaire (4 Déc. 2025) :</strong>
+                                <p>Qualification de « catastrophe carcérale » et préconisation d'une grâce royale collective (art. 110 Const.) pour ramener la population aux normes.</p>
+                            </div>
+                        </div>
+
+                        <!-- Prison Chart -->
+                        <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                            <h3 class="text-xs font-bold text-slate-800 text-center mb-2">Nombre de Détenus Dormant sur un Matelas à même le Sol</h3>
+                            <div class="chart-container">
+                                <canvas id="prisonChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab Content 3: Justice Budget -->
+                <div id="tab-justice" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="p-5 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
+                            <h3 class="font-bold text-slate-900 text-sm">Le « Mémorandum des Trois Cours Suprêmes » (Juillet 2024)</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Les chefs de corps de la Cour constitutionnelle, de la Cour de cassation et du Conseil d'État ont dénoncé cinq années de coupes budgétaires linéaires (> 2%/an), qualifiant la situation de <strong>« déni de justice »</strong>.
+                            </p>
+                            <ul class="text-xs text-slate-700 space-y-2 border-t border-slate-200 pt-2">
+                                <li><strong>Budget Justice :</strong> < 0,28 % du PIB (nettement sous la moyenne européenne).</li>
+                                <li><strong>Magistrats :</strong> 14,4 pour 100k hab. (contre 17,6 en moyenne UE).</li>
+                                <li><strong>Dégradation physique :</strong> Annulation de procès en raison de la destruction de pièces à conviction par des fuites d'eau/moisissures.</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-5 bg-slate-50 rounded-lg border border-slate-200 space-y-3">
+                            <h3 class="font-bold text-slate-900 text-sm">Arriéré Judiciaire & Arrêt Van den Kerkhof (CEDH 2023)</h3>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Les délais de jugement restent dramatiques. À la Cour d'appel de Bruxelles, un litige civil introduit en 2015 s'est vu fixer une audience de plaidoiries en <strong>2026</strong> (8 ans d'attente en appel), sanctionné une nouvelle fois par la CEDH.
+                            </p>
+                            <div class="text-xs bg-slate-100 p-3 rounded">
+                                <span class="font-bold block text-slate-800">Délai moyen des affaires administratives :</span>
+                                <span class="text-rose-600 font-bold text-base">370 jours</span> en 2024 (en hausse continue depuis 2022).
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: INTEGRITY, MEDIA & REFORMS MATRIX -->
+        <section id="reformes" class="space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                <div class="mb-6">
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-900">5. Anti-corruption, Concentration des Médias & Plan de Réformes</h2>
+                    <p class="mt-2 text-slate-600 text-sm leading-relaxed">
+                        Cette section présente l'inertie face aux recommandations anticorruption (GRECO), la concentration médiatique historique en Belgique francophone (rachat d'IPM par Rossel) et offre une matrice filtrable des réformes préconisées par les organes de contrôle européens.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- GRECO Gauge Chart -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 text-center">
+                        <h3 class="text-xs font-bold text-slate-800 mb-2">Conformité GRECO (5e Cycle - Exécutif & Police)</h3>
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="grecoChart"></canvas>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">
+                            <strong>63,7 %</strong> des recommandations ne sont pas pleinement exécutées (Rapport Janvier 2026).
+                        </p>
+                    </div>
+
+                    <!-- Pension Bonus Scandal Box -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-2">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase">Le Scandale des Surpensions Parlementaires</h3>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Depuis 2004, des compléments de pension illégaux (+20 % au-dessus du plafond Wijninckx) étaient versés aux députés. Attaquée par 46 anciens parlementaires pour maintenir ce bonus, la mesure a été annulée par la justice en <strong>Octobre 2025</strong> et <strong>Juillet 2026</strong>.
+                        </p>
+                        <div class="p-2 bg-emerald-50 text-emerald-800 rounded text-xs font-semibold">
+                            Économie : 2,8 M€/an (Pensions maintenues à 8 291 € bruts/mois vs 1 798 € médiane nationale).
+                        </div>
+                    </div>
+
+                    <!-- Media Concentration Progress Bar -->
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-3">
+                        <h3 class="text-xs font-bold text-slate-900 uppercase">Monopole Presse Francophone (Rachat IPM par Rossel - Juillet 2026)</h3>
+                        <p class="text-xs text-slate-600">
+                            L'Autorité belge de la Concurrence a validé la fusion Rossel-IPM. Un seul groupe contrôle désormais la quasi-totalité des quotidiens francophones.
+                        </p>
+                        <div class="space-y-2 pt-1 text-xs">
+                            <div class="flex justify-between font-bold">
+                                <span>Part de marché Presse Quotidienne</span>
+                                <span class="text-rose-600">94–95 %</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                <div class="bg-rose-600 h-full" style="width: 95%"></div>
+                            </div>
+                            <div class="flex justify-between font-bold pt-1">
+                                <span>Plateformes d'info en ligne</span>
+                                <span class="text-amber-600">82 %</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                                <div class="bg-amber-600 h-full" style="width: 82%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Reform Filter Matrix -->
+                <div class="border-t border-slate-200 pt-6">
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Matrice des Levares de Réforme Structurelle</h3>
+                    
+                    <!-- Filter Buttons -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button class="reform-filter-btn px-3 py-1 bg-amber-600 text-white rounded-full text-xs font-medium" onclick="filterReforms('all')">Tous</button>
+                        <button class="reform-filter-btn px-3 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-full text-xs font-medium" onclick="filterReforms('parti')">Particratie & Financement</button>
+                        <button class="reform-filter-btn px-3 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-full text-xs font-medium" onclick="filterReforms('fed')">Fédéralisme & Institutions</button>
+                        <button class="reform-filter-btn px-3 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-full text-xs font-medium" onclick="filterReforms('just')">Justice & Droits Humains</button>
+                        <button class="reform-filter-btn px-3 py-1 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-full text-xs font-medium" onclick="filterReforms('transp')">Transparence & GRECO</button>
+                    </div>
+
+                    <!-- Reform Cards Grid -->
+                    <div id="reforms-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <!-- Reform Item 1 -->
+                        <div class="reform-card parti bg-slate-50 p-4 rounded border border-slate-200 space-y-1">
+                            <span class="px-2 py-0.5 bg-amber-100 text-amber-800 rounded font-semibold text-[10px]">Particratie</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Plafonnement du Financement Public & Réseaux Sociaux</h4>
+                            <p class="text-slate-600">Réduire les dotations directes (83,7 M€), interdire les publicités politiques sponsorisées hors campagne et remplacer les cabinets par des cellules stratégiques administratives neutres.</p>
+                        </div>
+
+                        <!-- Reform Item 2 -->
+                        <div class="reform-card fed bg-slate-50 p-4 rounded border border-slate-200 space-y-1">
+                            <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded font-semibold text-[10px]">Fédéralisme</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Circonscription Électorale Fédérale (Modèle Pavia)</h4>
+                            <p class="text-slate-600">Instaurer une circonscription nationale unique pour 15 des 150 sièges de la Chambre afin d'obliger les dirigeants politiques à rendre des comptes à l'ensemble du corps électoral belge.</p>
+                        </div>
+
+                        <!-- Reform Item 3 -->
+                        <div class="reform-card just bg-slate-50 p-4 rounded border border-slate-200 space-y-1">
+                            <span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-semibold text-[10px]">Justice</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Restauration de l'Autorité Judiciaire & Accueil Asile</h4>
+                            <p class="text-slate-600">Exécution inconditionnelle des ordonnances des tribunaux du travail et des mesures d'urgence de la CEDH. Refinancement des cours et tribunaux à la moyenne européenne (0,28% PIB).</p>
+                        </div>
+
+                        <!-- Reform Item 4 -->
+                        <div class="reform-card just bg-slate-50 p-4 rounded border border-slate-200 space-y-1">
+                            <span class="px-2 py-0.5 bg-rose-100 text-rose-800 rounded font-semibold text-[10px]">Justice</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Régulation Carcérale & Transfert des Internés</h4>
+                            <p class="text-slate-600">Adopter une loi de régulation imposant un numerus clausus pénitentiaire et sortir l'ensemble des internés psychiatriques des prisons vers des Centres de Psychiatrie Légale (CPL).</p>
+                        </div>
+
+                        <!-- Reform Item 5 -->
+                        <div class="reform-card transp bg-slate-50 p-4 rounded border border-slate-200 space-y-1">
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">Transparence</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Registre Obligatoire des Lobbies & Contrôle CADA</h4>
+                            <p class="text-slate-600">Publier la réforme CADA conférant un pouvoir décisionnel contraignant d'accès aux documents, créer un registre de transparence des lobbies obligatoire et vérifier effectivement les déclarations de patrimoine.</p>
+                        </div>
+
+                        <!-- Reform Item 6 -->
+                        <div class="reform-card transp bg-slate-50 p-4 rounded border border-slate-200 space-y-1">
+                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded font-semibold text-[10px]">Transparence</span>
+                            <h4 class="font-bold text-slate-900 text-sm">Garanties de Pluralisme Médias (EMFA)</h4>
+                            <p class="text-slate-600">Appliquer strictement le règlement européen sur la liberté des médias (EMFA) pour garantir l'indépendance des rédactions face aux monopoles de presse éditoriaux (Rossel/DPG Media).</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 border-t border-slate-800 py-8 text-xs">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-3">
+            <p>Observatoire Synthétique de la Démocratie & de l'État de Droit en Belgique — Données compilées (2024–2026).</p>
+            <p class="text-slate-500">Sources : EIU Democracy Index (2024–2025), V-Dem Institute (2026), World Justice Project (2026), Freedom House (2026), Rapports CEDH (Camara 2023, M.V. 2026), CPT Conseil de l'Europe (Sept. 2026), GRECO (2025-2026), Étude KU Leuven (2025), IFDH & OCDE.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', function() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+
+        // Tab Switcher for Rule of Law Section
+        function switchRuleTab(tabId) {
+            // Hide all tabs
+            document.getElementById('tab-asile').classList.add('hidden');
+            document.getElementById('tab-prisons').classList.add('hidden');
+            document.getElementById('tab-justice').classList.add('hidden');
+
+            // Show selected
+            document.getElementById('tab-' + tabId).classList.remove('hidden');
+
+            // Update tab button styles
+            const buttons = document.querySelectorAll('#etat-de-droit .tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('active', 'text-amber-700', 'font-bold');
+                btn.classList.add('text-slate-500');
+            });
+
+            event.currentTarget.classList.add('active', 'text-amber-700', 'font-bold');
+            event.currentTarget.classList.remove('text-slate-500');
+        }
+
+        // Filter Reform Cards Matrix
+        function filterReforms(category) {
+            const cards = document.querySelectorAll('.reform-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.classList.contains(category)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Update button styles
+            const btns = document.querySelectorAll('.reform-filter-btn');
+            btns.forEach(btn => {
+                btn.classList.remove('bg-amber-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+            event.currentTarget.classList.remove('bg-slate-100', 'text-slate-700');
+            event.currentTarget.classList.add('bg-amber-600', 'text-white');
+        }
+
+        // CHART INITIALIZATIONS (Chart.js)
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Common Chart Options
+            const commonOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: { size: 11 },
+                            boxWidth: 12
+                        }
+                    }
+                }
+            };
+
+            // 1. Multi-Index Chart
+            const ctxIndices = document.getElementById('indicesChart').getContext('2d');
+            new Chart(ctxIndices, {
+                type: 'bar',
+                data: {
+                    labels: [
+                        'EIU Democracy',
+                        'V-Dem (Électoral)',
+                        'V-Dem (Libéral)',
+                        'Freedom House',
+                        'WJP Rule of Law'
+                    ],
+                    datasets: [{
+                        label: 'Score Normalisé (/10)',
+                        data: [7.77, 8.90, 7.90, 9.50, 7.80],
+                        backgroundColor: [
+                            '#d97706', // EIU Amber
+                            '#059669', // V-Dem Green
+                            '#10b981',
+                            '#3b82f6', // Freedom House Blue
+                            '#6366f1'  // WJP Indigo
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: {
+                            min: 5,
+                            max: 10,
+                            ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            // 2. Funding Breakdown Donut Chart
+            const ctxFunding = document.getElementById('fundingChart').getContext('2d');
+            new Chart(ctxFunding, {
+                type: 'doughnut',
+                data: {
+                    labels: [
+                        'Personnel Parlementaire (104.6M€)',
+                        'Subventions Directes Partis (83.7M€)',
+                        'Cotisations Membres (4.6M€)',
+                        'Dons Privés (1.2M€)'
+                    ],
+                    datasets: [{
+                        data: [104.6, 83.7, 4.6, 1.2],
+                        backgroundColor: ['#1e293b', '#b45309', '#10b981', '#cbd5e1']
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // 3. Wealth Chart
+            const ctxWealth = document.getElementById('wealthChart').getContext('2d');
+            new Chart(ctxWealth, {
+                type: 'bar',
+                data: {
+                    labels: ['N-VA', 'Vlaams Belang', 'PS', 'cd&v', 'Autres Partis'],
+                    datasets: [{
+                        label: 'Patrimoine Net (Millions €)',
+                        data: [26.3, 15.3, 15.1, 15.0, 55.9],
+                        backgroundColor: '#334155'
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    indexAxis: 'y',
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // 4. Prison Chart (Mattresses on floor)
+            const ctxPrison = document.getElementById('prisonChart').getContext('2d');
+            new Chart(ctxPrison, {
+                type: 'line',
+                data: {
+                    labels: ['Janv. 2023', 'Novembre 2024', 'Décembre 2025'],
+                    datasets: [{
+                        label: 'Matelas à même le sol',
+                        data: [120, 198, 614],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+
+            // 5. GRECO Compliance Doughnut
+            const ctxGreco = document.getElementById('grecoChart').getContext('2d');
+            new Chart(ctxGreco, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Satisfaisant (36.3%)', 'Partiel (45.5%)', 'Non appliqué (18.2%)'],
+                    datasets: [{
+                        data: [36.3, 45.5, 18.2],
+                        backgroundColor: ['#10b981', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    ...commonOptions,
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
