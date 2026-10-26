@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autopsie du Pouvoir d'Agir Citoyen en Belgique (2024–2026)</title>
+    <!-- Chosen Palette: Warm Neutral & Deep Rust/Amber (Fond beige chaud #FAF8F5, Slate #1E293B, Rust Accent #991B1B, Amber #D97706) -->
+    <!-- Application Structure Plan: Application organisée en tableau de bord d'analyse sociopolitique à 6 sections principales. Navigation sticky avec badges d'alerte démocratique. Utilisation de cartes interactives, d'onglets thématiques pour le Quadruple Verrouillage, de graphiques dynamiques Chart.js (histogrammes, camemberts, radar), d'un simulateur de filtres de participation électorale, et de matrices comparatives (Gains juridiques vs Inexécution gouvernementale). Structure pensée pour faire ressortir visuellement le fossé entre le score électoral formel et la réalité du pouvoir d'agir résiduel du citoyen. -->
+    <!-- Visualization & Content Choices:
+    1. Indice de Confiance & Légitimité -> Bar Chart Chart.js -> Comparaison de la confiance envers 5 institutions clés pour illustrer le discrédit ciblé des partis (27%).
+    2. Modèle de Financement des Partis -> Doughnut Chart Chart.js -> Répartition des recettes (87.2% fonds publics vs 3.9% cotisations) démontrant l'autarcie financière particratique.
+    3. Abstention & Participation Électorale -> Grouped Bar Chart Chart.js -> Impact du vote optionnel en Flandre (63.6%) vs obligatoire à Bruxelles/Wallonie.
+    4. Équation du Pouvoir d'Agir Citoyen -> Radar Chart Chart.js -> Évaluation synthétique des 6 leviers citoyennes (de l'initiative directe 0% à la justice 65%).
+    5. Tableaux interactifs et accordéons HTML/Tailwind -> Décomposition du Quadruple Verrouillage, des requêtes unilatérales, des pétitions mort-nées et des arrêts de la Cour constitutionnelle.
+    6. Confirmation : Aucun graphique SVG utilisé. Aucun Mermaid JS utilisé. Tout est rendu en Canvas Chart.js et HTML/CSS Tailwind responsive. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        bgWarm: '#FAF8F5',
+                        cardBg: '#FFFFFF',
+                        borderWarm: '#E5E0D8',
+                        textPrimary: '#1C242B',
+                        textSecondary: '#52606D',
+                        accentRed: '#991B1B',
+                        accentAmber: '#D97706',
+                        accentNavy: '#1E3A8A',
+                        accentTeal: '#0F766E'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Cinzel', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body {
+            background-color: #FAF8F5;
+            color: #1C242B;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 380px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1EFEA;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94A3B8;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased text-textPrimary leading-relaxed">
+
+    <!-- TOP ANNOUNCEMENT BAR -->
+    <div class="bg-accentRed text-white text-xs sm:text-sm py-2 px-4 text-center font-medium shadow-inner">
+        <span class="font-bold">Rapport d'Analyse 2024–2026 :</span> Diagnostiquer le Pouvoir d'Agir Citoyen face au Verrouillage Particratique en Belgique
+    </div>
+
+    <!-- MAIN HEADER HERO -->
+    <header class="border-b border-borderWarm bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                <div class="space-y-3 md:max-w-3xl">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-accentRed border border-red-200 rounded-full text-xs font-semibold tracking-wide uppercase">
+                        <span>&#x26A0; Déficit Participatif : -0,257 pt</span>
+                    </div>
+                    <h1 class="font-serif text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight text-textPrimary leading-tight">
+                        Autopsie du Pouvoir d'Agir Citoyen en Belgique
+                    </h1>
+                    <p class="text-textSecondary text-sm sm:text-base leading-relaxed">
+                        Que reste-t-il de la capacité d'initiative citoyenne entre deux scrutins quinquennaux ? Une investigation de la particratie consulaire, du verrouillage électoral, des limites délibératives et des derniers contre-pouvoirs juridictionnels.
+                    </p>
+                </div>
+                
+                <!-- TOP KPI CARDS -->
+                <div class="grid grid-cols-2 gap-3 min-w-[280px]">
+                    <div class="bg-bgWarm p-3.5 rounded-xl border border-borderWarm text-center">
+                        <span class="block text-2xl font-bold text-accentRed">27 %</span>
+                        <span class="text-xs text-textSecondary font-medium">Confiance dans les partis (OCDE 2026)</span>
+                    </div>
+                    <div class="bg-bgWarm p-3.5 rounded-xl border border-borderWarm text-center">
+                        <span class="block text-2xl font-bold text-accentNavy">188,3 M€</span>
+                        <span class="text-xs text-textSecondary font-medium">Soutien public annuel aux partis</span>
+                    </div>
+                    <div class="bg-bgWarm p-3.5 rounded-xl border border-borderWarm text-center">
+                        <span class="block text-2xl font-bold text-accentAmber">0 %</span>
+                        <span class="text-xs text-textSecondary font-medium">Référendum décisionnel possible</span>
+                    </div>
+                    <div class="bg-bgWarm p-3.5 rounded-xl border border-borderWarm text-center">
+                        <span class="block text-2xl font-bold text-accentTeal">16 000+</span>
+                        <span class="text-xs text-textSecondary font-medium">Condamnations de l'État non exécutées</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STICKY NAVIGATION BAR -->
+    <nav class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-borderWarm shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-14 overflow-x-auto custom-scrollbar gap-4 text-xs sm:text-sm font-medium text-textSecondary whitespace-nowrap">
+                <a href="#diagnostic" class="hover:text-accentRed transition-colors py-2 border-b-2 border-transparent hover:border-accentRed">1. Diagnostic & Confiance</a>
+                <a href="#verrouillage" class="hover:text-accentRed transition-colors py-2 border-b-2 border-transparent hover:border-accentRed">2. Le Quadruple Verrou</a>
+                <a href="#particratie" class="hover:text-accentRed transition-colors py-2 border-b-2 border-transparent hover:border-accentRed">3. L'Empire Particratique</a>
+                <a href="#deliberatif" class="hover:text-accentRed transition-colors py-2 border-b-2 border-transparent hover:border-accentRed">4. Démocratie Délibérative</a>
+                <a href="#bastions" class="hover:text-accentRed transition-colors py-2 border-b-2 border-transparent hover:border-accentRed">5. Bastions de Résistance</a>
+                <a href="#synthese" class="hover:text-accentRed transition-colors py-2 border-b-2 border-transparent hover:border-accentRed">6. Synthèse & Radar</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- SECTION 1: DIAGNOSTIC & CONFIANCE INSTITUTIONNELLE -->
+        <section id="diagnostic" class="scroll-mt-20 space-y-6">
+            <div class="border-l-4 border-accentRed pl-4">
+                <h2 class="text-xl sm:text-2xl font-serif font-bold text-textPrimary">1. Diagnostic & Confiance : Le Décrochage Participatif</h2>
+                <p class="text-textSecondary text-sm sm:text-base mt-1">
+                    La Belgique affiche la dualité d'une polyarchie électorale formellement solide mais atteinte d'une crise aiguë de légitimité d'entrée (<em>input legitimacy</em>).
+                </p>
+            </div>
+
+            <!-- EXPLANATORY INTRO PARAGRAPH -->
+            <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm leading-relaxed text-sm sm:text-base text-textSecondary space-y-3">
+                <p>
+                    Cette section évalue le décalage entre les performances électorales institutionnelles de la Belgique et le sentiment réel d'efficacité politique des citoyens. Alors que les données du <em>V-Dem Institute</em> (2024–2026) accordent à la Belgique un score élevé de <strong>0,886</strong> sur l'index de démocratie électorale, l'index de démocratie participative chute à <strong>0,629</strong>, révélant un déficit massif de <strong>-0,257 point</strong>.
+                </p>
+                <p>
+                    Selon l'enquête 2026 de l'OCDE sur la confiance dans les institutions publiques, seuls <strong>30 %</strong> des Belges estiment avoir leur mot à dire sur l'action gouvernementale. Ce manque de « voix politique » génère un gouffre de <strong>49 points de pourcentage</strong> dans le taux de confiance globale envers le système politique entre ceux qui se sentent entendus et ceux qui s'estiment ignorés.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- CHART 1: CONFIANCE INSTITUTIONNELLE -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-bold text-base text-textPrimary">Niveau de Confiance selon l'Institution (OCDE 2026)</h3>
+                        <p class="text-xs text-textSecondary">Pourcentage des citoyens exprimant une confiance majoritaire</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartTrust"></canvas>
+                    </div>
+                    <div class="bg-bgWarm p-3 rounded-lg text-xs text-textSecondary border border-borderWarm">
+                        <strong>Clé d'analyse :</strong> Alors que les institutions exécutives et de maintien de l'ordre (police, tribunaux) conservent la confiance d'une majorité ou d'une pluralité, les partis politiques s'effondrent à <strong>27 %</strong>, constituant le maillon le plus discrédité.
+                    </div>
+                </div>
+
+                <!-- CHART 2: SONDAGE CLUSTER17 DISCONNECT -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-bold text-base text-textPrimary">Pourquoi 71 % des Citoyens défient les Élus (Cluster17, Sept. 2026)</h3>
+                        <p class="text-xs text-textSecondary">Principaux motifs de défiance exprimés en Belgique francophone</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartDistrustMotifs"></canvas>
+                    </div>
+                    <div class="bg-bgWarm p-3 rounded-lg text-xs text-textSecondary border border-borderWarm">
+                        <strong>Facteur socio-économique :</strong> La défiance envers la classe politique atteint <strong>79 % chez les ouvriers</strong>, <strong>82 % chez les 25–34 ans</strong>, et <strong>92 % chez les électeurs du PTB</strong>.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 2: LE QUADRUPLE VERROUILLAGE -->
+        <section id="verrouillage" class="scroll-mt-20 space-y-6">
+            <div class="border-l-4 border-accentNavy pl-4">
+                <h2 class="text-xl sm:text-2xl font-serif font-bold text-textPrimary">2. Le Quadruple Verrouillage du Pouvoir Citoyen</h2>
+                <p class="text-textSecondary text-sm sm:text-base mt-1">
+                    Analyse détaillée des quatre dispositifs institutionnels, juridiques et sociaux qui filtrent ou neutralisent l'action citoyenne.
+                </p>
+            </div>
+
+            <!-- INTRO PARAGRAPH -->
+            <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm leading-relaxed text-sm sm:text-base text-textSecondary">
+                <p>
+                    Pour comprendre pourquoi le citoyen se sent dépossédé, cette section décortique les quatre barrières successives qui ferment l'espace public. De la distorsion mathématique des scrutins électoraux à la paralysie du Conseil d'État, en passant par le carcan salarial et l'interdiction constitutionnelle du référendum, chaque canal traditionnel d'intervention fait l'objet d'un recadrage strict par les élites particratiques.
+                </p>
+            </div>
+
+            <!-- INTERACTIVE ACCORDION / TABS FOR THE 4 LOCKS -->
+            <div class="bg-white rounded-2xl border border-borderWarm shadow-sm overflow-hidden">
+                <!-- TAB NAVIGATION -->
+                <div class="flex flex-wrap border-b border-borderWarm bg-bgWarm text-xs sm:text-sm font-semibold">
+                    <button onclick="switchLockTab('lock1')" id="tab-lock1" class="lock-tab-btn flex-1 min-w-[140px] py-3.5 px-4 text-center border-b-2 border-accentRed text-accentRed bg-white transition-all">
+                        1. Verrou Électoral
+                    </button>
+                    <button onclick="switchLockTab('lock2')" id="tab-lock2" class="lock-tab-btn flex-1 min-w-[140px] py-3.5 px-4 text-center border-b-2 border-transparent text-textSecondary hover:text-textPrimary transition-all">
+                        2. Démocratie Directe
+                    </button>
+                    <button onclick="switchLockTab('lock3')" id="tab-lock3" class="lock-tab-btn flex-1 min-w-[140px] py-3.5 px-4 text-center border-b-2 border-transparent text-textSecondary hover:text-textPrimary transition-all">
+                        3. Contre-Pouvoirs
+                    </button>
+                    <button onclick="switchLockTab('lock4')" id="tab-lock4" class="lock-tab-btn flex-1 min-w-[140px] py-3.5 px-4 text-center border-b-2 border-transparent text-textSecondary hover:text-textPrimary transition-all">
+                        4. Asphyxie Justice
+                    </button>
+                </div>
+
+                <!-- TAB CONTENT AREA -->
+                <div class="p-6 space-y-6">
+
+                    <!-- TAB 1: ELECTORAL -->
+                    <div id="content-lock1" class="lock-tab-content space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="space-y-3">
+                                <h3 class="text-lg font-bold text-textPrimary">La Neutralisation Électorale et le Choc du Vote Optionnel</h3>
+                                <p class="text-xs sm:text-sm text-textSecondary leading-relaxed">
+                                    Aux élections fédérales du 9 juin 2024, sur 8,36 millions d'inscrits, <strong>1,61 million de citoyens (19,3 %)</strong> n'ont eu aucun représentant à la Chambre en raison des 966 546 abstentions (11,6 %), des 416 577 votes blancs/nuls (5,63 %) et des 234 969 voix portées sur de petites listes éliminées par le <strong>seuil légal de 5 %</strong>.
+                                </p>
+                                <p class="text-xs sm:text-sm text-textSecondary leading-relaxed">
+                                    En Flandre, la suppression du vote obligatoire aux communales d'octobre 2024 a provoqué une chute de participation à <strong>63,6 % (-28,6 points)</strong>, créant une forte abstention sociale : <strong>53 % des non-votants ont entre 18 et 39 ans</strong> et la probabilité d'abstenir atteint 42 % chez les non-diplômés du supérieur.
+                                </p>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="chartElectoralParticipation"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- SYSTEM COMPARISON TABLE -->
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                                <thead>
+                                    <tr class="bg-bgWarm border-b border-borderWarm text-textPrimary font-semibold">
+                                        <th class="p-3">Niveau de Scrutin</th>
+                                        <th class="p-3">Régime de Vote (2024)</th>
+                                        <th class="p-3">Participation</th>
+                                        <th class="p-3">Clé de Répartition</th>
+                                        <th class="p-3">Effet Case de Tête</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-borderWarm text-textSecondary">
+                                    <tr>
+                                        <td class="p-3 font-medium text-textPrimary">Chambre Fédérale</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded">Obligatoire</span></td>
+                                        <td class="p-3">88,4 %</td>
+                                        <td class="p-3">D'Hondt (Seuil 5 %)</td>
+                                        <td class="p-3 font-semibold text-accentRed">Maintenu à 50 % (Demi-pot)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-medium text-textPrimary">Communales Flandre</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 bg-red-100 text-accentRed rounded font-bold">Optionnel (2021)</span></td>
+                                        <td class="p-3 font-bold text-accentRed">63,6 % (-28.6 pts)</td>
+                                        <td class="p-3">Imperiali (Avantage leaders)</td>
+                                        <td class="p-3 text-green-700">Supprimé (0 %)</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-medium text-textPrimary">Communales Wallonie</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded">Obligatoire</span></td>
+                                        <td class="p-3">85,2 %</td>
+                                        <td class="p-3">Imperiali</td>
+                                        <td class="p-3 text-green-700">Supprimé (0 %) + Bourgmestre direct</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-3 font-medium text-textPrimary">Communales Bruxelles</td>
+                                        <td class="p-3"><span class="px-2 py-0.5 bg-green-100 text-green-800 rounded">Obligatoire</span></td>
+                                        <td class="p-3">79,6 %</td>
+                                        <td class="p-3">Imperiali</td>
+                                        <td class="p-3 font-semibold text-accentRed">Maintenu à 50 %</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- TAB 2: DIRECT DEMOCRACY -->
+                    <div id="content-lock2" class="lock-tab-content hidden space-y-4">
+                        <h3 class="text-lg font-bold text-textPrimary">L'Interdiction de la Démocratie Directe et le Filtrage des Consultations</h3>
+                        <p class="text-xs sm:text-sm text-textSecondary leading-relaxed">
+                            L'<strong>article 33 de la Constitution</strong> (<em>« Tous les pouvoirs émanent de la Nation »</em>) est interprété par le Conseil d'État comme interdisant tout référendum décisionnel. Ce verrou est historiquement motivé par la crise traumatique de la Question Royale en 1950 (57,7 % de oui national mais fort clivage communautaire et 4 morts à Grâce-Berleur).
+                        </p>
+                        
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                            <div class="bg-bgWarm p-4 rounded-xl border border-borderWarm space-y-2">
+                                <span class="text-xs font-bold uppercase text-accentRed tracking-wider">Consultation Régionale (Art. 39bis)</span>
+                                <p class="text-xs text-textSecondary leading-relaxed">
+                                    En Wallonie, l'initiative citoyenne requiert <strong>60 000 signatures</strong> (2 % par circonscription) et un double quorum de 10 % pour le dépouillement. Exclusions strictes : <strong>finances, budget et fiscalité interdit !</strong> Aucune n'a jamais abouti.
+                                </p>
+                            </div>
+                            <div class="bg-bgWarm p-4 rounded-xl border border-borderWarm space-y-2">
+                                <span class="text-xs font-bold uppercase text-accentRed tracking-wider">Pétitions Parlementaires Fédérales</span>
+                                <p class="text-xs text-textSecondary leading-relaxed">
+                                    Exige <strong>25 000 signatures</strong> pour un simple droit d'audition en commission. Aucune obligation pour le Parlement de voter une loi ni de modifier sa politique.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB 3: COLLECTIVE COUNTER-POWERS -->
+                    <div id="content-lock3" class="lock-tab-content hidden space-y-4">
+                        <h3 class="text-lg font-bold text-textPrimary">L'Entrave aux Contre-Pouvoirs Syndicaux et Associatifs</h3>
+                        <p class="text-xs sm:text-sm text-textSecondary leading-relaxed">
+                            Les canaux historiques de protestation font l'objet d'un encadrement répressif accru sous la législature 2024–2026 :
+                        </p>
+                        <ul class="space-y-2 text-xs sm:text-sm text-textSecondary list-disc pl-5">
+                            <li><strong>Loi de 1996 sur la norme salariale :</strong> Bloquée à <strong>0 % de marge d'augmentation</strong> hors indexation en 2023–2026 par arrêté royal, empêchant toute négociation de hausses réelles.</li>
+                            <li><strong>Requêtes unilatérales contre les piquets de grève :</strong> Mobilisées massivement lors du conflit <em>Delhaize (2023)</em> par les employeurs en extrême urgence sans débat contradictoire, brisant les piquet sous peine d'astreintes financières.</li>
+                            <li><strong>Avant-projet de « Loi Quintin » (2026) :</strong> Permet au Conseil des ministres d'interdire administrativement les activités d'associations jugées menaçantes par arrêté royal, <strong>sans décision préalable d'un juge</strong>.</li>
+                            <li><strong>Interdiction judiciaire de manifester (Projet 2026) :</strong> Peine accessoire proposée d'interdiction de rassemblements revendicatifs de 3 à 6 ans, dénoncée par AVOCATS.BE pour son risque de surveillance biométrique.</li>
+                        </ul>
+                    </div>
+
+                    <!-- TAB 4: JUDICIAL & TRANSPARENCY -->
+                    <div id="content-lock4" class="lock-tab-content hidden space-y-4">
+                        <h3 class="text-lg font-bold text-textPrimary">L'Asphyxie du Dernier Rempart Juridictionnel et Administratif</h3>
+                        <p class="text-xs sm:text-sm text-textSecondary leading-relaxed">
+                            Si les citoyens remportent des victoires majeures devant les tribunaux (<em>Affaire Climat</em>, arrêts de la Cour constitutionnelle), l'appareil d'État neutralise ces décisions par l'inexécution et la paralysie administrative :
+                        </p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                            <div class="p-3 bg-red-50 rounded-xl border border-red-200 space-y-1">
+                                <span class="font-bold text-accentRed block">Refus d'Exécuter</span>
+                                <p class="text-textSecondary">Plus de <strong>16 000 condamnations</strong> de l'État non exécutées dans la crise de l'accueil. Refus ouvert d'exécuter et de payer les astreintes par la ministre en janvier 2026.</p>
+                            </div>
+                            <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 space-y-1">
+                                <span class="font-bold text-accentAmber block">Conseil d'État Paralysé</span>
+                                <p class="text-textSecondary">Annonce en octobre 2026 d'un délai d'attente supplémentaire de <strong>38 mois</strong> pour les affaires d'urbanisme/environnement (plus de 5 ans cumulés).</p>
+                            </div>
+                            <div class="p-3 bg-blue-50 rounded-xl border border-blue-200 space-y-1">
+                                <span class="font-bold text-accentNavy block">CADA Fédérale à l'Arrêt</span>
+                                <p class="text-textSecondary">Depuis le <strong>1er juillet 2026</strong>, la section Publicité de la CADA ne traite plus aucun recours d'accès aux documents administratifs par manque de nomination.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 3: L'EMPIRE PARTICRATIQUE ET SON FINANCEMENT -->
+        <section id="particratie" class="scroll-mt-20 space-y-6">
+            <div class="border-l-4 border-accentAmber pl-4">
+                <h2 class="text-xl sm:text-2xl font-serif font-bold text-textPrimary">3. L'Architecture Particratique et l'Autarcie Financière</h2>
+                <p class="text-textSecondary text-sm sm:text-base mt-1">
+                    Comment les états-majors de partis verrouillent l'agenda législatif et captent les ressources publiques.
+                </p>
+            </div>
+
+            <!-- INTRO PARAGRAPH -->
+            <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm leading-relaxed text-sm sm:text-base text-textSecondary space-y-3">
+                <p>
+                    Cette section analyse l'autarcie financière des partis politiques belges et son impact direct sur le travail parlementaire. Selon l'étude de la KU Leuven (Maddens et al., octobre 2025), les partis belges dépendent à <strong>87,2 % des fonds publics</strong> (subventions directes et retenues sur mandataires). En incluant le coût des collaborateurs parlementaires de groupe, le soutien financier public atteint <strong>188,3 millions d'euros par an</strong>, soit 29,7 % des budgets cumulés de tous les parlements du pays.
+                </p>
+                <p>
+                    En contrepartie, les cotisations des membres ne pèsent plus que <strong>3,9 %</strong> des recettes totales (dont 52,3 % sont récoltés par le seul PTB). Cette indépendance financière vis-à-vis de la base citoyenne s'accompagne d'un contrôle de fer au Parlement, où la discipline de groupe oscille entre <strong>98,4 % et 99,9 %</strong>.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- CHART 3: PARTY FINANCES DOUGHNUT -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-bold text-base text-textPrimary">Structure des Recettes des Partis Belges (2024)</h3>
+                        <p class="text-xs text-textSecondary">Total : 108,7 M€ de revenus cumulés (Source: KU Leuven 2025)</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartPartyFinance"></canvas>
+                    </div>
+                    <div class="text-xs text-textSecondary text-center italic">
+                        Patrimoine net cumulé des partis fin 2024 : <strong>127,6 millions d'euros</strong> (N-VA: 26,3M€, VB: 15,3M€, PS: 15,1M€).
+                    </div>
+                </div>
+
+                <!-- DISCIPLINE & CABINETS METRICS CARD -->
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                        <h3 class="font-bold text-base text-textPrimary">Cohésion de Vote à la Chambre (Discipline de Groupe)</h3>
+                        
+                        <div class="space-y-3 text-xs sm:text-sm">
+                            <div>
+                                <div class="flex justify-between font-semibold mb-1">
+                                    <span>N-VA & Vooruit</span>
+                                    <span class="text-accentRed">99,9 %</span>
+                                </div>
+                                <div class="w-full bg-bgWarm rounded-full h-2">
+                                    <div class="bg-accentRed h-2 rounded-full" style="width: 99.9%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-semibold mb-1">
+                                    <span>Vlaams Belang, cd&v, Les Engagés</span>
+                                    <span class="text-accentRed">99,8 %</span>
+                                </div>
+                                <div class="w-full bg-bgWarm rounded-full h-2">
+                                    <div class="bg-accentRed h-2 rounded-full" style="width: 99.8%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-semibold mb-1">
+                                    <span>MR, PTB/PVDA, Groen</span>
+                                    <span class="text-accentRed">99,7 %</span>
+                                </div>
+                                <div class="w-full bg-bgWarm rounded-full h-2">
+                                    <div class="bg-accentRed h-2 rounded-full" style="width: 99.7%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between font-semibold mb-1">
+                                    <span>PS</span>
+                                    <span class="text-accentAmber">98,6 %</span>
+                                </div>
+                                <div class="w-full bg-bgWarm rounded-full h-2">
+                                    <div class="bg-accentAmber h-2 rounded-full" style="width: 98.6%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-3 border-t border-borderWarm text-xs text-textSecondary space-y-2">
+                            <p><strong>Cabinets Ministériels Fédéraux :</strong> Plus de 500 conseillers politiques nommés préparent les décisions à huis clos (réunions <em>GORM/GOP</em> sans PV public), réduisant le Parlement à une chambre de ratification.</p>
+                            <p><strong>Paralysie Institutionnelle :</strong> Illustrée par la crise bruxelloise de 2024–2026, restée en affaires courantes pendant <strong>613 jours</strong> en raison des vétos de coalitions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 4: DEMOCRATIE DELIBERATIVE ET PETITIONS -->
+        <section id="deliberatif" class="scroll-mt-20 space-y-6">
+            <div class="border-l-4 border-accentTeal pl-4">
+                <h2 class="text-xl sm:text-2xl font-serif font-bold text-textPrimary">4. Le « Laboratoire Délibératif » et la Réalité des Pétitions</h2>
+                <p class="text-textSecondary text-sm sm:text-base mt-1">
+                    Évaluation des mini-publics tirés au sort (Ostbelgien, Commissions mixtes) et du sort réservé aux pétitions citoyennes.
+                </p>
+            </div>
+
+            <!-- INTRO PARAGRAPH -->
+            <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm leading-relaxed text-sm sm:text-base text-textSecondary">
+                <p>
+                    Cette section examine les innovations participatives belges saluées à l'international (tirage au sort, commissions mixtes parlementaires/citoyens). L'analyse critique montre que ces outils restent strictement consultatifs et sont cadrés par les élites représentatives. En 2024–2026, la Communauté germanophone a révisé son modèle en plafonnant les assemblées à 5 par législature et en imposant qu'au moins un thème provienne du Bureau du Parlement. De plus, les pétitions nationales massivement signées débouchent sur des auditions sans suite législative contraignante.
+                </p>
+            </div>
+
+            <!-- PETITIONS SHOWCASE TABLE -->
+            <div class="bg-white rounded-2xl border border-borderWarm shadow-sm p-6 space-y-4">
+                <h3 class="font-bold text-base text-textPrimary">Bilan des Pétitions Citoyennes Majeures (Plateforme Fédérale 2020–2026)</h3>
+                
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-xs sm:text-sm text-left border-collapse">
+                        <thead>
+                            <tr class="bg-bgWarm border-b border-borderWarm text-textPrimary font-semibold">
+                                <th class="p-3">Intitulé de l'Initiative Citoyenne</th>
+                                <th class="p-3">Signatures Récoltées</th>
+                                <th class="p-3">Seuil Légiste (25 000)</th>
+                                <th class="p-3">Résultat / Suivi Effectif</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-borderWarm text-textSecondary">
+                            <tr>
+                                <td class="p-3 font-medium text-textPrimary">Pour une fiscalité juste</td>
+                                <td class="p-3 font-bold text-accentNavy">87 388</td>
+                                <td class="p-3 text-green-700">Atteint (349 %)</td>
+                                <td class="p-3">Audition en commission, aucune réforme votée.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium text-textPrimary">Belgian Citizen's Bill for Palestine</td>
+                                <td class="p-3 font-bold text-accentNavy">78 341</td>
+                                <td class="p-3 text-green-700">Atteint (313 %)</td>
+                                <td class="p-3">Débat sans prise de décision contraignante.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium text-textPrimary">Renforcement du congé parental</td>
+                                <td class="p-3 font-bold text-accentNavy">40 464</td>
+                                <td class="p-3 text-green-700">Atteint (161 %)</td>
+                                <td class="p-3">Classé sans suite législative.</td>
+                            </tr>
+                            <tr class="bg-red-50/50">
+                                <td class="p-3 font-medium text-textPrimary">Panel <em>We Need To Talk</em> (Financement Partis)</td>
+                                <td class="p-3">60 citoyens tirés au sort</td>
+                                <td class="p-3">Recommandations (74% à 98%)</td>
+                                <td class="p-3 font-bold text-accentRed">Rejeté/Ignoré par le Parlement (Restitution des surplus, etc.).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="text-xs text-textSecondary bg-bgWarm p-3 rounded-lg border border-borderWarm">
+                    <strong>Statistique Bxl (Perspective.brussels 2025) :</strong> Sur toutes les initiatives participatives publiques à Bruxelles, <strong>seuls 8 % visent à prendre des décisions</strong>, contre 28 % pour exprimer une opinion et 25 % pour écouter.
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 5: BASTIONS DE RESISTANCE ET VICTOIRES JURIDIQUES -->
+        <section id="bastions" class="scroll-mt-20 space-y-6">
+            <div class="border-l-4 border-accentRed pl-4">
+                <h2 class="text-xl sm:text-2xl font-serif font-bold text-textPrimary">5. Les Derniers Bastions de Résistance Citoyenne</h2>
+                <p class="text-textSecondary text-sm sm:text-base mt-1">
+                    Face au blocage politique, le pouvoir d'agir se réfugie dans le contentieux stratégique et la protection constitutionnelle.
+                </p>
+            </div>
+
+            <!-- INTRO PARAGRAPH -->
+            <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm leading-relaxed text-sm sm:text-base text-textSecondary">
+                <p>
+                    Cette section évalue les leviers d'action qui conservent un impact réel en 2025–2026. L'action en justice (<em>contentieux stratégique</em>) est devenue le principal outil d'inflexion politique, illustrée par la condamnation climatique de l'État et les décisions de la Cour constitutionnelle protégeant la désobéissance civile et les droits sociaux. En parallèle, dans la sphère économique, l'expérience bancaire citoyenne (NewB) a essuyé un revers lourd (44M€ de pertes cumulées), tandis que les coopératives locales de transition (REScoop) démontrent une vitalité durable.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- CONSTITUTIONAL COURT RULINGS CARD -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <h3 class="font-bold text-base text-textPrimary flex items-center gap-2">
+                        <span>&#x2696;</span> Garde-Fous de la Cour Constitutionnelle (2025–2026)
+                    </h3>
+                    
+                    <div class="space-y-3 text-xs sm:text-sm">
+                        <div class="p-3 bg-bgWarm rounded-xl border border-borderWarm">
+                            <span class="font-bold text-accentRed block">Arrêt n° 172/2025 (11 Déc. 2025)</span>
+                            <p class="text-textSecondary">Reconnaît l'Art. 10 CEDH (liberté d'expression) comme cause d'excuse absolutoire pour les citoyens pratiquant la <strong>désobéissance civile écologique non violente</strong>.</p>
+                        </div>
+                        <div class="p-3 bg-bgWarm rounded-xl border border-borderWarm">
+                            <span class="font-bold text-accentNavy block">Arrêt n° 14/2026 (29 Jan. 2026)</span>
+                            <p class="text-textSecondary">Annule l'incrimination de simple réception de secret d'État dans le Code pénal, protégeant le journalisme d'investigation et les lanceurs d'alerte.</p>
+                        </div>
+                        <div class="p-3 bg-bgWarm rounded-xl border border-borderWarm">
+                            <span class="font-bold text-accentTeal block">Arrêt du 10 Sept. 2026 (Assurance-chômage)</span>
+                            <p class="text-textSecondary">Annule le délai d'exclusion brutal de la réforme du chômage, accordant un sursis d'allocations à environ <strong>100 000 personnes</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COOPERATIVE ECONOMY COMPARISON CARD -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <h3 class="font-bold text-base text-textPrimary">Économie Sociale : Macro-Finance vs Circulaire Locale</h3>
+                    
+                    <div class="space-y-4 text-xs sm:text-sm">
+                        <div class="p-4 bg-red-50 rounded-xl border border-red-200 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-accentRed">NewB (Coopérative Bancaire)</span>
+                                <span class="text-xs px-2 py-0.5 bg-red-200 text-red-900 rounded font-semibold">Revers 2026</span>
+                            </div>
+                            <p class="text-textSecondary leading-relaxed">
+                                116 000 coopérateurs citoyennes et 48 M€ levés. Confrontée aux exigences prudentielles de la BNB et aux taux négatifs, NewB enregistre <strong>44,24 M€ de pertes cumulées</strong> (92 % du capital absorbé) et abandonne définitivement le secteur bancaire en février 2026.
+                            </p>
+                        </div>
+
+                        <div class="p-4 bg-green-50 rounded-xl border border-green-200 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-green-900">REScoop (Coopératives Énergie)</span>
+                                <span class="text-xs px-2 py-0.5 bg-green-200 text-green-900 rounded font-semibold">Vitalité Forte</span>
+                            </div>
+                            <p class="text-textSecondary leading-relaxed">
+                                Production et distribution d'énergie renouvelable en circuit court selon le principe « 1 coopérateur = 1 voix ». L'un des rares espaces où la citoyenneté économique s'exerce avec un contrôle direct sur les actifs.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 6: SYNTHESE ET RADAR DU POUVOIR D'AGIR -->
+        <section id="synthese" class="scroll-mt-20 space-y-6">
+            <div class="border-l-4 border-accentRed pl-4">
+                <h2 class="text-xl sm:text-2xl font-serif font-bold text-textPrimary">6. Synthèse : L'Équation Résiduelle du Pouvoir Citoyen</h2>
+                <p class="text-textSecondary text-sm sm:text-base mt-1">
+                    Évaluation globale des leviers d'action restant à la disposition du citoyen belge à l'automne 2026.
+                </p>
+            </div>
+
+            <!-- INTRO PARAGRAPH -->
+            <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm leading-relaxed text-sm sm:text-base text-textSecondary space-y-3">
+                <p>
+                    En synthèse, le pouvoir d'agir du citoyen belge apparaît fortement asymétrique. L'<strong>initiative directe est nulle (0 %)</strong> au niveau constitutionnel et législatif. L'<strong>interpellation consultative (25 %)</strong> et la <strong>démocratie sociale (35 %)</strong> sont bridées par des normes restrictives. 
+                </p>
+                <p>
+                    Seuls le <strong>contentieux judiciaire stratégique (65 %)</strong> et l'<strong>auto-organisation locale (70 %)</strong> offrent un réel pouvoir de transformation, mais ils font désormais l'objet de pressions politiques sans précédent (inexécution des arrêts, lois sur la désobéissance).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                <!-- CHART 4: RADAR CHART OF CITIZEN LEVERS -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <div>
+                        <h3 class="font-bold text-base text-textPrimary">Radar de la Effectivité des Leviers Citoyens (0 à 100)</h3>
+                        <p class="text-xs text-textSecondary">Évaluation de la capacité réelle d'impact sociopolitique</p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartLeverRadar"></canvas>
+                    </div>
+                </div>
+
+                <!-- KEY CONCLUSIONS SUMMARY BOX -->
+                <div class="bg-white p-6 rounded-2xl border border-borderWarm shadow-sm space-y-4">
+                    <h3 class="font-bold text-lg font-serif text-textPrimary">Les Trois Strates de la Citoyenneté Belge en 2026</h3>
+                    
+                    <div class="space-y-3 text-xs sm:text-sm">
+                        <div class="flex items-start gap-3 p-3 bg-red-50 rounded-xl border border-red-200">
+                            <span class="font-bold text-accentRed text-base">1</span>
+                            <div>
+                                <strong class="text-textPrimary block">Initiative Directe & Sanction : Nulle (0 %)</strong>
+                                <span class="text-textSecondary">Souveraineté confisquée par un accord de coalition trié à huis clos et soutenu par une discipline parlementaire à 99 %.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 p-3 bg-amber-50 rounded-xl border border-amber-200">
+                            <span class="font-bold text-accentAmber text-base">2</span>
+                            <div>
+                                <strong class="text-textPrimary block">Délibération & Pétitions : Tutelle Consultative</strong>
+                                <span class="text-textSecondary">Droit d'être entendu mais aucun pouvoir décisionnel. Rejet des propositions touchant aux privilèges des partis.</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-3 p-3 bg-blue-50 rounded-xl border border-blue-200">
+                            <span class="font-bold text-accentNavy text-base">3</span>
+                            <div>
+                                <strong class="text-textPrimary block">Contre-Pouvoir Judiciaire & Social : Bastion Sous Pression</strong>
+                                <span class="text-textSecondary">Dernier levier d'action effectif (Klimaatzaak, Cour Constitutionnelle) ciblé par le refus gouvernemental d'exécuter.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="p-4 bg-bgWarm rounded-xl border border-borderWarm text-xs text-textSecondary italic">
+                        « Quand on refuse d'exécuter une décision de justice pour des raisons budgétaires, on affirme que la loi ne vaut plus rien. On dit que la loi, ce n'est plus le juge, c'est l'argent. »
+                        <div class="font-semibold text-textPrimary mt-1 font-sans font-normal">— Frédéric Van Leeuw, Procureur Général de Bruxelles (Janvier 2026)</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="border-t border-borderWarm bg-white mt-16 py-8 text-center text-xs text-textSecondary">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-semibold text-textPrimary">Autopsie de la Démocratie Belge (2024–2026) — Application d'Analyse d'Information</p>
+            <p>Source des données : V-Dem Institute, Enquête OCDE 2026, Sondage Cluster17/RTL, Étude KU Leuven (Maddens et al.), CRISP, Cour Constitutionnelle.</p>
+            <p>Conçu pour une exploration interactive sans graphiques vectoriels ni extensions externes.</p>
+        </div>
+    </footer>
+
+
+    <!-- JAVASCRIPT LOGIC & CHART.JS INITIALIZATION -->
+    <script>
+        // TAB SWITCHING LOGIC FOR SECTION 2 (THE 4 LOCKS)
+        function switchLockTab(tabId) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.lock-tab-content');
+            contents.forEach(el => el.classList.add('hidden'));
+
+            // Reset tab button styles
+            const buttons = document.querySelectorAll('.lock-tab-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('border-accentRed', 'text-accentRed', 'bg-white');
+                btn.classList.add('border-transparent', 'text-textSecondary');
+            });
+
+            // Show target content
+            const targetContent = document.getElementById('content-' + tabId);
+            if (targetContent) {
+                targetContent.classList.remove('hidden');
+            }
+
+            // Highlight target button
+            const targetBtn = document.getElementById('tab-' + tabId);
+            if (targetBtn) {
+                targetBtn.classList.remove('border-transparent', 'text-textSecondary');
+                targetBtn.classList.add('border-accentRed', 'text-accentRed', 'bg-white');
+            }
+        }
+
+        // CHART.JS INITIALIZATION
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Global Chart Font Settings
+            Chart.defaults.font.family = 'Inter, sans-serif';
+            Chart.defaults.color = '#52606D';
+
+            // 1. CHART TRUST IN INSTITUTIONS (BAR CHART)
+            const ctxTrust = document.getElementById('chartTrust').getContext('2d');
+            new Chart(ctxTrust, {
+                type: 'bar',
+                data: {
+                    labels: ['Police', 'Justice/Tribunaux', 'Fonction Publique', 'Gouvernement Féd.', 'Partis Politiques'],
+                    datasets: [{
+                        label: '% de Confiance (OCDE 2026)',
+                        data: [64, 53, 46, 41, 27],
+                        backgroundColor: [
+                            '#1E3A8A',
+                            '#3B82F6',
+                            '#0F766E',
+                            '#D97706',
+                            '#991B1B'
+                        ],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.raw + '% de confiance'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        },
+                        x: {
+                            ticks: {
+                                callback: function(val, index) {
+                                    let label = this.getLabelForValue(val);
+                                    return label.length > 14 ? label.substring(0, 14) + '...' : label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 2. CHART DISTRUST MOTIFS (HORIZONTAL BAR)
+            const ctxDistrust = document.getElementById('chartDistrustMotifs').getContext('2d');
+            new Chart(ctxDistrust, {
+                type: 'bar',
+                data: {
+                    labels: ['Privilégient parti/carrière', 'Éloignés du quotidien', 'Incapables de tenir promesses', 'Corrompus / Opaque'],
+                    datasets: [{
+                        label: '% d\'accord (Cluster17 2026)',
+                        data: [58, 51, 42, 31],
+                        backgroundColor: '#991B1B',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 70,
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        },
+                        y: {
+                            ticks: {
+                                callback: function(val, index) {
+                                    let label = this.getLabelForValue(val);
+                                    return label.length > 16 ? label.substring(0, 16) + '...' : label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 3. CHART ELECTORAL PARTICIPATION (GROUPED BAR)
+            const ctxElectoral = document.getElementById('chartElectoralParticipation').getContext('2d');
+            new Chart(ctxElectoral, {
+                type: 'bar',
+                data: {
+                    labels: ['Fédéral 2024', 'Comm. Wallonie', 'Comm. Bruxelles', 'Comm. Flandre (Optionnel)'],
+                    datasets: [{
+                        label: 'Taux de Participation (%)',
+                        data: [88.4, 85.2, 79.6, 63.6],
+                        backgroundColor: ['#1E3A8A', '#0F766E', '#D97706', '#991B1B'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            min: 50,
+                            max: 100,
+                            ticks: { callback: function(value) { return value + '%'; } }
+                        },
+                        x: {
+                            ticks: {
+                                callback: function(val, index) {
+                                    let label = this.getLabelForValue(val);
+                                    return label.length > 14 ? label.substring(0, 14) + '...' : label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 4. CHART PARTY FINANCE (DOUGHNUT)
+            const ctxFinance = document.getElementById('chartPartyFinance').getContext('2d');
+            new Chart(ctxFinance, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Subventions Publiques Directes', 'Retenues Mandataires (Indirect)', 'Cotisations Membres', 'Dons & Propres'],
+                    datasets: [{
+                        data: [77.0, 10.2, 3.9, 8.9],
+                        backgroundColor: ['#1E3A8A', '#3B82F6', '#D97706', '#CBD5E1'],
+                        borderWidth: 2,
+                        borderColor: '#FFFFFF'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 11 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) { return context.label + ': ' + context.raw + '%'; }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 5. CHART LEVER RADAR (RADAR CHART)
+            const ctxRadar = document.getElementById('chartLeverRadar').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: [
+                        'Initiative Directe',
+                        'Impact Délibératif',
+                        'Démocratie Sociale',
+                        'Accès Transparence',
+                        'Justice Stratégique',
+                        'Coopératives Locales'
+                    ],
+                    datasets: [{
+                        label: 'Score d\'Effectivité Réelle (0-100)',
+                        data: [0, 25, 35, 30, 65, 70],
+                        fill: true,
+                        backgroundColor: 'rgba(153, 27, 27, 0.2)',
+                        borderColor: '#991B1B',
+                        pointBackgroundColor: '#991B1B',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#991B1B'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#E5E0D8' },
+                            grid: { color: '#E5E0D8' },
+                            pointLabels: {
+                                font: { size: 10, weight: '600' },
+                                callback: function(label) {
+                                    return label.length > 12 ? label.substring(0, 12) + '...' : label;
+                                }
+                            },
+                            ticks: { display: false, stepSize: 20 },
+                            suggestedMin: 0,
+                            suggestedMax: 100
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
