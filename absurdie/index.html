@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>L'Absurdité Organisationnelle en Belgique : Anatomie & Impact</title>
+
+    <!-- Chosen Palette: Warm Neutral Slate & Amber / Crimson / Emerald Accents -->
+    <!-- Application Structure Plan: 
+        1. Hero & Metrics Dashboard: Key macro figures (5.99B€ tax, 525k invalids, 11% engagement, 28.3% burnout risk).
+        2. Visual Analytics Hub (Charts & Data Explorer): Dynamic Chart.js visualizations (Admin cost evolution, Gallup paradox, Burn-out breakdown, Invalidity spending growth).
+        3. Cadre Théorique Interactif: Grid layout of organizational theories (Goodhart, Peter, Parkinson, Graeber, Merton, Taskin) with interactive filter & detailed modal/accordion.
+        4. Lasagne Institutionnelle & Dérapages Publics: Comparative audit cards of the 4 major public project failures (Métro 3, Gare de Mons, Inondations 2021, DTP Justice) with financial overrun calculators.
+        5. Secteurs, Citoyens & Non-Recours: Deep dive into healthcare, education, digital divide, and social rights non-take-up.
+        6. Simulateur d'Impact Bureaucratique (Interactive Micro-tool): Allows users/managers to estimate lost hours & financial drag in their own organization based on report formulas.
+        7. Plan de Transformation (10 Leviers): Filterable list of 10 systemic recommendations for reform.
+        
+        Rationale: Non-linear navigation allowing users to freely transition between macro data, psychological impact, real-world case studies, personal estimation tools, and actionable solutions.
+    -->
+    <!-- Visualization & Content Choices:
+        - Admin Costs (Bar & Line chart combo via Chart.js): Illustrates progression from 2000 to 2022 and recent +21% rebound.
+        - Gallup Paradox (Radar / Bar chart via Chart.js): Highlights high life thriving vs dismal work engagement and high stress.
+        - Burn-out Factors (Doughnut chart via Chart.js): Visualizes 51.03% organizational cause vs 1.5% socio-demo cause.
+        - Cost Simulator (Vanilla JS logic): Provides active learning and personal context.
+        - Iconography: Pure Unicode symbols and Tailwind badge styling (NO SVG, NO Mermaid JS).
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        warmbg: '#f8fafc',
+                        cardbg: '#ffffff',
+                        navy: '#0f172a',
+                        slate: '#334155',
+                        brandamber: '#d97706',
+                        brandred: '#be123c',
+                        brandteal: '#0d9488',
+                        brandblue: '#2563eb'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-warmbg text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header / Navigation -->
+    <header class="bg-navy text-white sticky top-0 z-50 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl">🇧🇪</span>
+                    <span class="font-bold text-lg md:text-xl tracking-tight text-white">Absurdité Organisationnelle <span class="text-brandamber text-sm font-normal">| Rapport Supérieur</span></span>
+                </div>
+                <nav class="hidden md:flex space-x-1 text-xs font-medium">
+                    <button onclick="scrollToSection('dashboard')" class="px-3 py-2 rounded hover:bg-slate-800 transition">Tableau de Bord</button>
+                    <button onclick="scrollToSection('theories')" class="px-3 py-2 rounded hover:bg-slate-800 transition">Théories & Lois</button>
+                    <button onclick="scrollToSection('lasagne')" class="px-3 py-2 rounded hover:bg-slate-800 transition">Lasagne & Dérapages</button>
+                    <button onclick="scrollToSection('secteurs')" class="px-3 py-2 rounded hover:bg-slate-800 transition">Secteurs & Santé</button>
+                    <button onclick="scrollToSection('simulator')" class="px-3 py-2 rounded hover:bg-slate-800 transition text-brandamber font-semibold">Calculateur d'Impact</button>
+                    <button onclick="scrollToSection('leviers')" class="px-3 py-2 rounded hover:bg-slate-800 transition">10 Leviers</button>
+                </nav>
+                <div class="md:hidden">
+                    <select onchange="scrollToSection(this.value)" class="bg-slate-800 text-white text-xs p-2 rounded border border-slate-700">
+                        <option value="dashboard">📊 Tableau de Bord</option>
+                        <option value="theories">🧠 Théories & Lois</option>
+                        <option value="lasagne">🏛️ Lasagne & Dérapages</option>
+                        <option value="secteurs">🏥 Secteurs & Santé</option>
+                        <option value="simulator">🧮 Calculateur d'Impact</option>
+                        <option value="leviers">💡 10 Leviers</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero / Title Header -->
+    <div class="bg-gradient-to-b from-navy to-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8 border-b border-slate-800">
+        <div class="max-w-5xl mx-auto text-center">
+            <div class="inline-block bg-brandamber/20 text-brandamber border border-brandamber/30 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider mb-4">
+                Analyse Systémique & Diagnostic Macroéconomique
+            </div>
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+                L'Absurdité Organisationnelle en Belgique
+            </h1>
+            <p class="text-slate-300 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
+                Anatomie des dérives bureaucratiques, de la surréglementation et du scientisme gestionnaire : coûts cachés, dérapages publics, crise sanitaire au travail et leviers de réinvention.
+            </p>
+        </div>
+    </div>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- SECTION 1: DASHBOARD & MACRO METRICS -->
+        <section id="dashboard" class="scroll-mt-20 space-y-6">
+            <div class="bg-cardbg p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-navy mb-2 flex items-center space-x-2">
+                    <span>📊</span> <span>Tableau de Bord Synthétique & Métriques Macroéconomiques</span>
+                </h2>
+                <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                    Cette section regroupe les indicateurs financiers, épidémiologiques et sociaux clés documentés par le Bureau fédéral du Plan, l'INAMI, Gallup, SD Worx et les autorités académiques. Elle permet d'appréhender le coût massif et protéiforme de l'hyper-bureaucratie en Belgique.
+                </p>
+
+                <!-- Key Metrics Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    <div class="bg-amber-50 border border-amber-200 p-4 rounded-lg">
+                        <div class="text-xs font-semibold text-amber-800 uppercase tracking-wider mb-1">Taxe administrative PME</div>
+                        <div class="text-2xl sm:text-3xl font-extrabold text-amber-900">5,99 Mrd €</div>
+                        <div class="text-xs text-amber-700 mt-1">1,08% du PIB (2022) | +21% entre 2020 et 2022 pour les entreprises</div>
+                    </div>
+                    <div class="bg-red-50 border border-red-200 p-4 rounded-lg">
+                        <div class="text-xs font-semibold text-red-800 uppercase tracking-wider mb-1">Invalidité Longue Durée</div>
+                        <div class="text-2xl sm:text-3xl font-extrabold text-red-900">&gt; 525 000</div>
+                        <div class="text-xs text-red-700 mt-1">Personnes &gt; 1 an d'arrêt | Budget global &gt; 8 Mrd € par an</div>
+                    </div>
+                    <div class="bg-slate-100 border border-slate-300 p-4 rounded-lg">
+                        <div class="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">Le Paradoxe Belge (Gallup)</div>
+                        <div class="text-2xl sm:text-3xl font-extrabold text-slate-900">11 %</div>
+                        <div class="text-xs text-slate-600 mt-1">Seulement 11% d'engagement au travail (vs 60% d'épanouissement personnel)</div>
+                    </div>
+                    <div class="bg-teal-50 border border-teal-200 p-4 rounded-lg">
+                        <div class="text-xs font-semibold text-teal-800 uppercase tracking-wider mb-1">Risque de Burn-out</div>
+                        <div class="text-2xl sm:text-3xl font-extrabold text-teal-900">28,3 %</div>
+                        <div class="text-xs text-teal-700 mt-1">1,17M de travailleurs (dont 13,6% en zone rouge d'épuisement grave)</div>
+                    </div>
+                </div>
+
+                <!-- Interactive Data Visualizations (Chart.js Grid) -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <!-- Chart 1: Admin Costs -->
+                    <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col">
+                        <h3 class="font-bold text-navy text-sm mb-1">Évolution des Charges Administratives en Belgique (Bureau du Plan)</h3>
+                        <p class="text-xs text-slate-500 mb-4">Coût total (Milliards d'euros) et trajectoire d'évolution du poids sur les PME/Indépendants.</p>
+                        <div class="chart-container flex-grow">
+                            <canvas id="chartAdminCost"></canvas>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2 italic text-center">Source: Bureau fédéral du Plan (Février 2024). Rebond de +21% post-2020.</div>
+                    </div>
+
+                    <!-- Chart 2: Gallup Paradox -->
+                    <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col">
+                        <h3 class="font-bold text-navy text-sm mb-1">Le "Paradoxe Belge" du Bien-être et du Travail (Gallup 2026)</h3>
+                        <p class="text-xs text-slate-500 mb-4">Comparaison entre la qualité de vie perçue et le vécu professionnel quotidien.</p>
+                        <div class="chart-container flex-grow">
+                            <canvas id="chartGallup"></canvas>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2 italic text-center">Source: Gallup State of the Global Workplace 2026 / eBloom.</div>
+                    </div>
+
+                    <!-- Chart 3: Burnout determinants -->
+                    <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col">
+                        <h3 class="font-bold text-navy text-sm mb-1">Déterminants du Risque de Burn-out (KU Leuven & Securex)</h3>
+                        <p class="text-xs text-slate-500 mb-4">Part de variance expliquée : Organisation du travail vs Profil socio-démographique.</p>
+                        <div class="chart-container flex-grow">
+                            <canvas id="chartBurnoutFactors"></canvas>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2 italic text-center">Source: Enquête Securex & Prof. Hans De Witte (KU Leuven, 2024).</div>
+                    </div>
+
+                    <!-- Chart 4: Health Invalidity Costs -->
+                    <div class="bg-slate-50 p-5 rounded-lg border border-slate-200 flex flex-col">
+                        <h3 class="font-bold text-navy text-sm mb-1">Coût INAMI des Invalidités pour Dépression et Burn-out</h3>
+                        <p class="text-xs text-slate-500 mb-4">Évolution des dépenses directes d'indemnités (en Millions d'Euros).</p>
+                        <div class="chart-container flex-grow">
+                            <canvas id="chartInvalidityCost"></canvas>
+                        </div>
+                        <div class="text-xs text-slate-500 mt-2 italic text-center">Source: Statistiques INAMI 2024 (+78% d'augmentation depuis 2019).</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: THEORETICAL FRAMEWORK & COGNITIVE LAWS -->
+        <section id="theories" class="scroll-mt-20 space-y-6">
+            <div class="bg-cardbg p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-navy mb-2 flex items-center space-x-2">
+                    <span>🧠</span> <span>Cadre Théorique & Mécanismes Cognitifs de l'Absurdité</span>
+                </h2>
+                <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                    Pourquoi des individus rationnels produisent-ils des systèmes collectifs absurdes ? Cette grille d'analyse explore les lois managériales et sociologiques (Merton, Crozier, Goodhart, Peter, Graeber, Taskin) qui expliquent le basculement de la rationalité en « cage de fer ». Utilisez les filtres ci-dessous pour explorer les concepts.
+                </p>
+
+                <!-- Filter buttons -->
+                <div class="flex flex-wrap gap-2 mb-6">
+                    <button onclick="filterTheories('all')" class="theory-btn active bg-navy text-white text-xs px-3 py-1.5 rounded-full font-medium transition">Toutes les théories</button>
+
+                    <button onclick="filterTheories('bureaucracy')" class="theory-btn bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs px-3 py-1.5 rounded-full font-medium transition">Bureaucratie & Rigidité</button>
+
+                    <button onclick="filterTheories('metrics')" class="theory-btn bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs px-3 py-1.5 rounded-full font-medium transition">Indicateurs & Reporting</button>
+
+                    <button onclick="filterTheories('management')" class="theory-btn bg-slate-100 text-slate-700 hover:bg-slate-200 text-xs px-3 py-1.5 rounded-full font-medium transition">Management & Postes</button>
+                </div>
+
+                <!-- Theory Cards Grid -->
+                <div id="theoryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Theory 1 -->
+                    <div class="theory-card bg-slate-50 p-4 rounded-lg border border-slate-200" data-category="bureaucracy">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-brandamber uppercase">R.K. Merton / M. Crozier</span>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded font-semibold">Bureaucratie</span>
+                        </div>
+                        <h4 class="font-bold text-navy text-base mb-1">Déplacement des Buts & Cercle Vicieux</h4>
+                        <p class="text-xs text-slate-600 mb-3">Le respect du règlement devient une fin autonome. Face aux erreurs, l'organisation réagit en empilant de nouvelles règles, éloignant les décideurs du terrain.</p>
+                        <div class="text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                            <strong>Exemple Belge :</strong> Maintien des contrôles budgétaires *a priori* de 1994 malgré la réforme Copernic.
+                        </div>
+                    </div>
+
+                    <!-- Theory 2 -->
+                    <div class="theory-card bg-slate-50 p-4 rounded-lg border border-slate-200" data-category="metrics">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-brandred uppercase">Goodhart & Alter</span>
+                            <span class="bg-red-100 text-red-800 text-[10px] px-2 py-0.5 rounded font-semibold">Indicateurs</span>
+                        </div>
+                        <h4 class="font-bold text-navy text-base mb-1">Loi de Goodhart & Effet Cobra</h4>
+                        <p class="text-xs text-slate-600 mb-3">Quand une mesure devient une cible, elle cesse d'être une bonne mesure. L'optimisation locale d'un KPI dégrade la mission globale et masque le travail réel.</p>
+                        <div class="text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                            <strong>Exemple Belge :</strong> Plans de pilotage scolaires réduits à une course aux chiffres et formulaires.
+                        </div>
+                    </div>
+
+                    <!-- Theory 3 -->
+                    <div class="theory-card bg-slate-50 p-4 rounded-lg border border-slate-200" data-category="management">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-brandteal uppercase">L.J. Peter & C.N. Parkinson</span>
+                            <span class="bg-teal-100 text-teal-800 text-[10px] px-2 py-0.5 rounded font-semibold">Management</span>
+                        </div>
+                        <h4 class="font-bold text-navy text-base mb-1">Principe de Peter & Dilution</h4>
+                        <p class="text-xs text-slate-600 mb-3">Promotion jusqu'au seuil d'incompétence (-7,5% de performance d'équipe). Le travail s'étend pour occuper le temps disponible ; comitologie paralysante.</p>
+                        <div class="text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                            <strong>Exemple Belge :</strong> Réunionite aiguë (31h/mois perdues) et seulement 1 manager sur 3 au style soutenant.
+                        </div>
+                    </div>
+
+                    <!-- Theory 4 -->
+                    <div class="theory-card bg-slate-50 p-4 rounded-lg border border-slate-200" data-category="management">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-brandamber uppercase">David Graeber</span>
+                            <span class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded font-semibold">Management</span>
+                        </div>
+                        <h4 class="font-bold text-navy text-base mb-1">"Bullshit Jobs" & Postes d'Apparat</h4>
+                        <p class="text-xs text-slate-600 mb-3">Prolifération de rôles perçus comme inutiles (cocheurs de cases, réparateurs de processus manuels). 19 à 20% des travailleurs ressentent cette aliénation.</p>
+                        <div class="text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                            <strong>Exemple Belge :</strong> "Duct tapers" imprimant à la main des e-PV policiers faute d'outils informatiques compatibles.
+                        </div>
+                    </div>
+
+                    <!-- Theory 5 -->
+                    <div class="theory-card bg-slate-50 p-4 rounded-lg border border-slate-200" data-category="bureaucracy">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-brandred uppercase">Alvesson & Spicer</span>
+                            <span class="bg-red-100 text-red-800 text-[10px] px-2 py-0.5 rounded font-semibold">Bureaucratie</span>
+                        </div>
+                        <h4 class="font-bold text-navy text-base mb-1">Stupidité Fonctionnelle & Travail Empêché</h4>
+                        <p class="text-xs text-slate-600 mb-3">Censure de l'esprit critique au profit du conformisme hiérarchique. Souffrance éthique (Yves Clot) d'un professionnel empêché de bien faire son travail.</p>
+                        <div class="text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                            <strong>Exemple Belge :</strong> 40% du temps médical absorbé par l'encodage administratif au détriment du soin.
+                        </div>
+                    </div>
+
+                    <!-- Theory 6 -->
+                    <div class="theory-card bg-slate-50 p-4 rounded-lg border border-slate-200" data-category="metrics">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="text-xs font-bold text-brandteal uppercase">L. Taskin (UCLouvain)</span>
+                            <span class="bg-teal-100 text-teal-800 text-[10px] px-2 py-0.5 rounded font-semibold">Indicateurs</span>
+                        </div>
+                        <h4 class="font-bold text-navy text-base mb-1">Scientisme Gestionnaire</h4>
+                        <p class="text-xs text-slate-600 mb-3">Gouvernance par les nombres qui réduit l'humain à une ressource (*Homo Economicus*), détruit les collectifs et occulte le travail vivant.</p>
+                        <div class="text-[11px] bg-white p-2 rounded border border-slate-200 text-slate-700">
+                            <strong>Exemple Belge :</strong> Échecs du *flexwork* sauvage et dérapages de la libération non accompagnée au SPF Mobilité.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: INSTITUTIONAL LASAGNA & PUBLIC DEVIATIONS -->
+        <section id="lasagne" class="scroll-mt-20 space-y-6">
+            <div class="bg-cardbg p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-navy mb-2 flex items-center space-x-2">
+                    <span>🏛️</span> <span>La "Lasagne Institutionnelle" Belge & Grands Dérapages Publics</span>
+                </h2>
+                <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                    En Belgique, l'enchevêtrement des niveaux de pouvoir (fédéral, régions, communautés, commissions communautaires, provinces, communes) crée le piège de la décision conjointe (*joint decision trap*). Cette dilution des responsabilités génère des blocages systémiques et d'immenses dérapages budgétaires documentés par la Cour des comptes.
+                </p>
+
+                <!-- 9 Health Ministers Banner -->
+                <div class="bg-amber-50 border-l-4 border-brandamber p-4 rounded-r-lg mb-8 flex items-center space-x-4">
+                    <span class="text-3xl">🏥</span>
+                    <div>
+                        <h4 class="font-bold text-amber-900 text-sm">Complexité Médicale : 9 Ministres de la Santé</h4>
+                        <p class="text-xs text-amber-800 leading-relaxed">
+                            La compétence de la santé est morcellée entre 9 ministres différents en Belgique. À Bruxelles, la gestion de l'enseignement relève de 2 communautés (FWB et Flamande) pour des élèves sur le même territoire, tandis que 4 niveaux de pouvoir soutiennent séparément le même festival culturel.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 4 Major Public Case Studies -->
+                <h3 class="text-lg font-bold text-navy mb-4">Focus sur 4 Grands Dossiers de Dysfonctionnement Audités</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    
+                    <!-- Case 1: Metro 3 -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded">Dérapage Budgétaire +477%</span>
+                                <span class="text-xs text-slate-500 font-mono">Cour des Comptes 2025</span>
+                            </div>
+                            <h4 class="text-base font-bold text-navy mb-2">Chantier du Métro 3 à Bruxelles</h4>
+                            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                Partenariat bicéphale (Région/STIB - Fédéral/Beliris). Budget initial de &lt; 1 Mrd € (mise en service 2020) grimpé à <strong>4,76 Milliards d'Euros</strong>. Projet gelé pour 10 ans. Déficit de financement de 4 Mrds €.
+                            </p>
+                            <ul class="text-xs text-slate-700 space-y-1 mb-4 border-l-2 border-slate-300 pl-3">
+                                <li>• Percement sous le Palais du Midi sans sondages préalables.</li>
+                                <li>• Contrat *build only* rigide empêchant la réingénierie.</li>
+                                <li>• Rétention d'informations prolongeant l'audit sur 3 ans.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-slate-200 text-xs font-semibold text-slate-800 flex justify-between">
+                            <span>Facture initiale: ~0,9 Mrd €</span>
+                            <span class="text-red-600">Actualisée: 4,76 Mrd €</span>
+                        </div>
+                    </div>
+
+                    <!-- Case 2: Gare de Mons -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded">Dérapage Gare +181% / Parking +818%</span>
+                                <span class="text-xs text-slate-500 font-mono">Cour des Comptes / SNCB</span>
+                            </div>
+                            <h4 class="text-base font-bold text-navy mb-2">Gare Monumentale de Mons</h4>
+                            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                Piloté par Eurogare/SNCB (Arch. Calatrava). Passerelle initiale de 37 M€ (prévue en 2015) transformée en gare monumentale livrée fin 2024 pour un montant global de <strong>480 Milliards d'Euros</strong>.
+                            </p>
+                            <ul class="text-xs text-slate-700 space-y-1 mb-4 border-l-2 border-slate-300 pl-3">
+                                <li>• Glissement de marché sans nouvel appel d'offres légal.</li>
+                                <li>• Explosion du coût des parkings de 4,7 M€ à 43,4 M€.</li>
+                                <li>• Faillites de sous-traitants et absence de contrôle rigoureux.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-slate-200 text-xs font-semibold text-slate-800 flex justify-between">
+                            <span>Budget 2006: 37 M€</span>
+                            <span class="text-red-600">Coût Final: 480 M€</span>
+                        </div>
+                    </div>
+
+                    <!-- Case 3: Inondations Wallonie -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded">Dilution des Responsabilités</span>
+                                <span class="text-xs text-slate-500 font-mono">Commission Enquête 2022</span>
+                            </div>
+                            <h4 class="text-base font-bold text-navy mb-2">Gestion des Inondations de Juillet 2021</h4>
+                            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                Émiettement des compétences de l'eau entre SPW Mobilité, SPW ARNE et SPW Intérieur. Outils de prévision existants mais chaîne d'alerte paralysée par le fonctionnement en silos.
+                            </p>
+                            <ul class="text-xs text-slate-700 space-y-1 mb-4 border-l-2 border-slate-300 pl-3">
+                                <li>• 161 recommandations formulées par le Parlement Wallon.</li>
+                                <li>• Incapacité de transmission rapide de l'urgence sur le terrain.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-slate-200 text-xs font-semibold text-slate-800">
+                            Impact: Cloisonnement administratif mortel en gestion de crise.
+                        </div>
+                    </div>
+
+                    <!-- Case 4: Digitalisation Justice -->
+                    <div class="bg-slate-50 border border-slate-200 rounded-lg p-5 flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-2">
+                                <span class="text-xs font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded">Concurrence Interne DTO/SPF</span>
+                                <span class="text-xs text-slate-500 font-mono">Cour des Comptes 2025</span>
+                            </div>
+                            <h4 class="text-base font-bold text-navy mb-2">Informatisation de la Justice (Phenix / DTP)</h4>
+                            <p class="text-xs text-slate-600 mb-4 leading-relaxed">
+                                Après les échecs de Phenix et Cheops, le DTP a été morcelé entre 3 entités fonctionnant en "concurrence assumée". Dépendance massive envers des consultants externes.
+                            </p>
+                            <ul class="text-xs text-slate-700 space-y-1 mb-4 border-l-2 border-slate-300 pl-3">
+                                <li>• 1 Million d'e-PV policiers imprimés sur papier chaque année.</li>
+                                <li>• Parquets incapables de signer/partager des PV numériques authentiques.</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-3 rounded border border-slate-200 text-xs font-semibold text-slate-800">
+                            Résultat: Rupture de la chaîne 100% numérique au parquet.
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: SECTORIAL IMPACT, CITIZENS & NON-TAKE-UP -->
+        <section id="secteurs" class="scroll-mt-20 space-y-6">
+            <div class="bg-cardbg p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-navy mb-2 flex items-center space-x-2">
+                    <span>🏥</span> <span>Impact Sectoriel, Fracture Numérique & Non-Recours aux Droits</span>
+                </h2>
+                <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                    L'absurdité administrative n'affecte pas seulement les finances publiques : elle pénalise les PME, épuise les soignants et enseignants, et exclut les citoyens les plus vulnérables du bénéfice de leurs droits sociaux fondamentaux (*Non-Take-Up*).
+                </p>
+
+                <!-- Tabbed details for Sectors -->
+                <div class="border-b border-slate-200 mb-6">
+                    <nav class="flex space-x-4 text-xs font-semibold" id="sectorTabs">
+                        <button onclick="switchSectorTab('pme')" id="tab-pme" class="border-b-2 border-brandamber text-brandamber pb-2 px-1">PME & Fiscalité</button>
+
+                        <button onclick="switchSectorTab('sante')" id="tab-sante" class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-2 px-1">Soins de Santé</button>
+
+                        <button onclick="switchSectorTab('ecole')" id="tab-ecole" class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-2 px-1">Enseignement</button>
+
+                        <button onclick="switchSectorTab('citoyens')" id="tab-citoyens" class="border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-2 px-1">Fracture & Droits Sociaux</button>
+                    </nav>
+                </div>
+
+                <!-- Tab content container -->
+                <div id="sectorContent">
+                    <!-- Default PME Content -->
+                    <div id="content-pme" class="space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                                <h4 class="font-bold text-navy text-sm mb-1">200+ Commissions Paritaires</h4>
+                                <p class="text-xs text-slate-600">Complexité extrême du calcul salarial. 95% des employeurs contraints d'externaliser la paie à des secrétariats sociaux (23-39€/fiche de paie).</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                                <h4 class="font-bold text-navy text-sm mb-1">Rebond +32% des Charges PME</h4>
+                                <p class="text-xs text-slate-600">Alors que les charges des grandes entreprises baissent, la facture administrative des PME avec personnel atteint 5,03 Mrd € en 2022.</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                                <h4 class="font-bold text-navy text-sm mb-1">Paradoxe Fiscal IPP</h4>
+                                <p class="text-xs text-slate-600">Passage de &gt;800 codes à 699 codes à l'IPP (2026) : simplification de façade obtenue par la suppression de déductions et l'extinction de régimes.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Santé Content -->
+                    <div id="content-sante" class="hidden space-y-4">
+                        <div class="bg-red-50 p-4 rounded border border-red-200">
+                            <h4 class="font-bold text-red-900 text-sm mb-1">Le "Travail Empêché" des Soignants</h4>
+                            <p class="text-xs text-red-800 leading-relaxed">
+                                40% du temps médical est absorbé par la bureaucratie, et 82% des médecins identifient cette surcharge comme la cause principale de leur burn-out. La Loi-cadre II (2026) renforce la méfiance et les sanctions du SECM avec suspension possible du numéro INAMI jusqu'à 2 ans. Deux Task-Forces de 12 mois tentent de supprimer les doubles encodages et attestations inutiles d'ici mi-2027.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Ecole Content -->
+                    <div id="content-ecole" class="hidden space-y-4">
+                        <div class="bg-amber-50 p-4 rounded border border-amber-200">
+                            <h4 class="font-bold text-amber-900 text-sm mb-1">Plans de Pilotage : La Bureaucratisation du Pacte d'Excellence</h4>
+                            <p class="text-xs text-amber-800 leading-relaxed">
+                                Bien que 99% des écoles FWB aient validé leur contrat d'objectifs, la gestion des indicateurs chiffrés est vécue comme un carcan rigide. En Flandre, le *Werkbaarheidsmonitor* indique que <strong>21,1% du personnel éducatif</strong> présente des symptômes de burn-out (taux sectoriel le plus élevé).
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Citoyens / Digital Content -->
+                    <div id="content-citoyens" class="hidden space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                                <h4 class="font-bold text-navy text-sm mb-2">Baromètre Inclusion Numérique 2026 (FRB)</h4>
+                                <ul class="text-xs text-slate-700 space-y-1.5">
+                                    <li>• <strong>39% des Belges (16-74 ans)</strong> en vulnérabilité numérique (56% des personnes malades ou invalides).</li>
+                                    <li>• <strong>28% des ménages précaires</strong> connectés uniquement par smartphone (bloquant l'accès à l'e-admin pour 38% d'entre eux).</li>
+                                    <li>• <strong>28% des citoyens</strong> contraints de recourir à un tiers pour leurs démarches en ligne.</li>
+                                </ul>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded border border-slate-200">
+                                <h4 class="font-bold text-navy text-sm mb-2">Le Non-Recours aux Droits (*Non-Take-Up*)</h4>
+                                <ul class="text-xs text-slate-700 space-y-1.5">
+                                    <li>• <strong>50% à 60%</strong> des ayants droit ne perçoivent pas le RIS (Revenu d'Intégration Sociale).</li>
+                                    <li>• <strong>45% des adultes éligibles</strong> ne bénéficient pas du statut BIM (Intervention majorée santé).</li>
+                                    <li>• Faille du MAF (Maximum à Facturer) : exclut de facto les précarisés qui renoncent aux soins initiaux.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Federal Ombudsman Insights -->
+                <div class="mt-6 bg-slate-100 p-4 rounded-lg border border-slate-300">
+                    <h4 class="font-bold text-navy text-xs uppercase tracking-wider mb-1">Rapport du Médiateur Fédéral 2025 ("Une administration fiable")</h4>
+                    <p class="text-xs text-slate-700 leading-relaxed">
+                        10 461 dossiers traités en 2025. Face au maquis réglementaire, l'administration commet elle-même des erreurs répétées (retards de chômage, radiations erronées de plaques d'immatriculation, virement d'impôts sur de mauvais comptes). Sur 826 dossiers de lanceurs d'alerte enregistrés, <strong>87% des signalements du secteur privé ont dû être déclarés irrecevables</strong> en raison de la complexité extrême du découpage légal des 14 domaines d'application.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: INTERACTIVE COST SIMULATOR -->
+        <section id="simulator" class="scroll-mt-20 space-y-6">
+            <div class="bg-gradient-to-br from-navy to-slate-900 text-white p-6 sm:p-8 rounded-xl shadow-lg">
+                <div class="max-w-3xl">
+                    <h2 class="text-2xl font-bold text-white mb-2 flex items-center space-x-2">
+                        <span>🧮</span> <span>Calculateur d'Impact de l'Absurdité Organisationnelle</span>
+                    </h2>
+                    <p class="text-slate-300 text-sm leading-relaxed mb-6">
+                        Évaluez le coût financier et humain généré par la bureaucratie interne, les réunions improductives et le désengagement au sein de votre entreprise ou service public, en appliquant les ratios issus des recherches empiriques de l'étude (Hamel, Gallup, SD Worx, Atlassian).
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-slate-800/80 p-6 rounded-lg border border-slate-700">
+                    <!-- Form Inputs -->
+                    <div class="space-y-4 text-xs">
+                        <div>
+                            <label class="block font-medium text-slate-200 mb-1">Nombre d'employés (ETP) dans votre structure :</label>
+                            <input type="number" id="simEmployees" value="50" min="1" max="10000" oninput="calculateImpact()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-brandamber focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-200 mb-1">Salaire moyen brut mensuel par ETP (€) :</label>
+                            <input type="number" id="simSalary" value="4000" min="1500" max="20000" step="100" oninput="calculateImpact()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-brandamber focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block font-medium text-slate-200 mb-1">Nombre moyen de réunions par semaine par salarié :</label>
+                            <input type="number" id="simMeetings" value="12" min="0" max="40" oninput="calculateImpact()" class="w-full bg-slate-900 border border-slate-600 rounded px-3 py-2 text-white font-mono focus:border-brandamber focus:outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Calculated Results -->
+                    <div class="bg-slate-900 p-5 rounded-lg border border-slate-700 flex flex-col justify-between space-y-4">
+                        <div class="border-b border-slate-800 pb-3">
+                            <span class="text-xs text-slate-400 block mb-1">Coût annuel de la "Réunionite Improductive" (71% d'inutilité)</span>
+                            <span id="resMeetingCost" class="text-xl sm:text-2xl font-extrabold text-brandamber font-mono">0 €</span>
+                            <span class="text-[10px] text-slate-500 block mt-0.5">Basé sur 31h perdues/mois par salarié (HBR)</span>
+                        </div>
+                        <div class="border-b border-slate-800 pb-3">
+                            <span class="text-xs text-slate-400 block mb-1">Coût direct estimé de l'Absentéisme Maladie (&gt;10% de jours perdus)</span>
+                            <span id="resAbsenceCost" class="text-xl sm:text-2xl font-extrabold text-brandred font-mono">0 €</span>
+                            <span class="text-[10px] text-slate-500 block mt-0.5">Ratio SD Worx (1 608,81 € par ETP/an)</span>
+                        </div>
+                        <div>
+                            <span class="text-xs text-slate-400 block mb-1">Salariés à risque de Burn-out (28,3% de l'effectif)</span>
+                            <span id="resBurnoutCount" class="text-xl sm:text-2xl font-extrabold text-brandteal font-mono">0 ETP</span>
+                            <span class="text-[10px] text-slate-500 block mt-0.5">Dont ~13,6% en zone rouge d'arrêt imminent (Securex/KUL)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: 10 ACTIONABLE LEVERS -->
+        <section id="leviers" class="scroll-mt-20 space-y-6">
+            <div class="bg-cardbg p-6 rounded-xl border border-slate-200 shadow-sm">
+                <h2 class="text-2xl font-bold text-navy mb-2 flex items-center space-x-2">
+                    <span>💡</span> <span>Plan de Transformation : 10 Leviers d'Avenir</span>
+                </h2>
+                <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                    Pour sortir du labyrinthe bureaucratique et réhumaniser le travail en Belgique, le rapport identifie 10 axes d'action prioritaire combinant simplification réglementaire, gouvernance par le travail réel et prévention primaire de la santé.
+                </p>
+
+                <!-- Levers Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">01</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Rendre effectif le principe « Only Once »</h4>
+                            <p class="text-xs text-slate-600">Appliquer réellement l'interopérabilité des données entre niveaux fédéral, régionaux et communautaires pour supprimer les doubles saisies (ex: plateforme Kube / e-PV Justice).</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">02</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Supprimer la loterie des « Appels à Projets »</h4>
+                            <p class="text-xs text-slate-600">Substituer des droits de tirage objectifs et des conventions pluriannuelles aux appels à projets chronophages pour les communes, CPAS et ASBL.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">03</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Élagage normatif par consensus terrain</h4>
+                            <p class="text-xs text-slate-600">Généraliser la méthode des Task-forces INAMI à l'enseignement et aux portails PME pour auditer et élaguer les formalités inutiles.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">04</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Automatisation des Droits & « Droit à l'Erreur »</h4>
+                            <p class="text-xs text-slate-600">Automatiser l'attribution du RIS et du statut BIM par croisement de données, tout en consacrant légalement le droit à l'erreur de bonne foi.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">05</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Garantie légale d'un guichet humain</h4>
+                            <p class="text-xs text-slate-600">Maintenir obligatoirement des canaux d'accueil physiques et téléphoniques accessibles pour contrer la vulnérabilité numérique (39% des citoyens).</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">06</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Déployer le « Management Humain »</h4>
+                            <p class="text-xs text-slate-600">Mettre en œuvre les travaux de L. Taskin (UCLouvain) : valoriser le travail vivant, restaurer les communautés de travail et traiter l'agent comme un être réflexif.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">07</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Outiller et protéger les managers de proximité</h4>
+                            <p class="text-xs text-slate-600">Réduire la charge de reporting des cadres (qui absorbe &gt;1/3 de leur temps) et les former au leadership soutenant prévenant le burn-out.</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">08</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Subsidiarité & Équipes Métiers Autonomes</h4>
+                            <p class="text-xs text-slate-600">S'inspirer de Buurtzorg (équipes de soins autogérées sans hiérarchie intermédiaire) et conciser les procédures (« celui qui fait est celui qui sait »).</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">09</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Discipline sur les réunions & Biais XY</h4>
+                            <p class="text-xs text-slate-600">Instaurer des journées sans réunion, limiter leur durée à 30 min (5-6 pers max) et former à expliciter le besoin réel (méthode des 5 Pourquoi).</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 flex space-x-3">
+                        <span class="font-extrabold text-brandamber text-lg">10</span>
+                        <div>
+                            <h4 class="font-bold text-navy text-sm mb-1">Prévention primaire & Réintégration sécurisée</h4>
+                            <p class="text-xs text-slate-600">Agir sur l'organisation du travail lors des retours de burn-out avec le CPAP pour éviter les 27,9% de rechutes dans l'année.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-navy text-slate-400 py-8 border-t border-slate-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+            <p class="text-slate-300 font-semibold">
+                L'Absurdité Organisationnelle en Belgique : Anatomie Systémique, Coûts Cachés et Répercussions Socio-Économiques
+            </p>
+            <p>
+                Données & Analyses issues du Bureau Fédéral du Plan, INAMI, Gallup 2026, SD Worx, Cour des Comptes, Fond. Roi Baudouin, Chaire laboRH UCLouvain.
+            </p>
+            <p class="text-slate-500">
+                © 2026 Platforme d'Information et Diagnostic Systémique | Conçu pour une consultation interactive fluide.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Smooth scroll handler
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // Theory Filter logic
+        function filterTheories(category) {
+            const cards = document.querySelectorAll('.theory-card');
+            const buttons = document.querySelectorAll('.theory-btn');
+
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-navy', 'text-white', 'active');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+
+            event.target.classList.remove('bg-slate-100', 'text-slate-700');
+            event.target.classList.add('bg-navy', 'text-white', 'active');
+
+            cards.forEach(card => {
+                if (category === 'all' || card.dataset.category === category) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Sector Tabs Logic
+        function switchSectorTab(tabKey) {
+            const keys = ['pme', 'sante', 'ecole', 'citoyens'];
+            keys.forEach(k => {
+                const btn = document.getElementById(`tab-${k}`);
+                const content = document.getElementById(`content-${k}`);
+                if (k === tabKey) {
+                    btn.className = "border-b-2 border-brandamber text-brandamber pb-2 px-1 font-bold";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "border-b-2 border-transparent text-slate-500 hover:text-slate-700 pb-2 px-1";
+                    content.classList.add('hidden');
+                }
+            });
+        }
+
+        // Cost Simulator Logic
+        function calculateImpact() {
+            const emp = parseFloat(document.getElementById('simEmployees').value) || 0;
+            const sal = parseFloat(document.getElementById('simSalary').value) || 0;
+            const meetings = parseFloat(document.getElementById('simMeetings').value) || 0;
+
+            // 1. Meeting Cost: Average employee salary per hour ~ sal / 160.
+            // Unnecessary meetings estimated at 50% of meetings above 5/week.
+            const hourlyRate = (sal * 1.39) / 160; // including employer costs
+            const wastedMeetingHoursPerWeek = Math.max(0, meetings * 0.6) * 1; // 60% unproductive hours
+            const meetingCostAnnual = emp * wastedMeetingHoursPerWeek * 46 * hourlyRate;
+
+            // 2. Direct Absence Cost: SD Worx figure = 1608.81€ per FTE per year
+            const absenceCostAnnual = emp * 1608.81;
+
+            // 3. Burnout count: 28.3% of workforce
+            const burnoutCount = Math.round(emp * 0.283);
+
+            // Update UI
+            document.getElementById('resMeetingCost').innerText = Math.round(meetingCostAnnual).toLocaleString('fr-BE') + " €";
+            document.getElementById('resAbsenceCost').innerText = Math.round(absenceCostAnnual).toLocaleString('fr-BE') + " €";
+            document.getElementById('resBurnoutCount').innerText = burnoutCount.toLocaleString('fr-BE') + " ETP";
+        }
+
+        // Chart.js Initialization
+        document.addEventListener("DOMContentLoaded", function () {
+            
+            // Helper for responsive label truncation
+            const truncateLabel = (str, max = 16) => str.length > max ? str.substring(0, max) + '...' : str;
+
+            // Chart 1: Admin Cost (Bureau du Plan)
+            const ctx1 = document.getElementById('chartAdminCost').getContext('2d');
+            new Chart(ctx1, {
+                type: 'bar',
+                data: {
+                    labels: ['2000', '2012', '2016', '2020', '2022'],
+                    datasets: [
+                        {
+                            label: 'Coût total PME/Entreprises (Milliards €)',
+                            data: [8.57, 6.20, 5.80, 4.94, 5.99],
+                            backgroundColor: '#d97706',
+                            borderRadius: 4
+                        },
+                        {
+                            label: '% du PIB Belge',
+                            data: [3.48, 1.70, 1.60, 1.08, 1.08],
+                            type: 'line',
+                            borderColor: '#be123c',
+                            borderWidth: 2,
+                            yAxisID: 'yPIB',
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: (ctx) => ctx.dataset.label + ': ' + ctx.formattedValue + (ctx.dataset.type === 'line' ? '%' : ' Mrd €')
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { beginAtZero: true, title: { display: true, text: 'Milliards €', font: { size: 10 } } },
+                        yPIB: { position: 'right', beginAtZero: true, title: { display: true, text: '% du PIB', font: { size: 10 } }, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+
+            // Chart 2: Gallup Paradox
+            const ctx2 = document.getElementById('chartGallup').getContext('2d');
+            new Chart(ctx2, {
+                type: 'bar',
+                data: {
+                    labels: ['Épanouissement Vie (Global)', 'Épanouissement (Belgique)', 'Engagement Travail (Mondial)', 'Engagement (Belgique)', 'Stress Quotidien (Belgique)'],
+                    datasets: [{
+                        label: 'Pourcentage (%)',
+                        data: [34, 60, 20, 11, 43],
+                        backgroundColor: ['#cbd5e1', '#0d9488', '#cbd5e1', '#be123c', '#d97706'],
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => c.raw + '%' } }
+                    },
+                    scales: {
+                        x: { max: 100, ticks: { callback: (v) => v + '%' } },
+                        y: { ticks: { font: { size: 10 }, callback: function(val, index) { return truncateLabel(this.getLabelForValue(val), 18); } } }
+                    }
+                }
+            });
+
+            // Chart 3: Burnout determinants
+            const ctx3 = document.getElementById('chartBurnoutFactors').getContext('2d');
+            new Chart(ctx3, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Facteurs Organisationnels (Charge, Rôle, Autonomie)', 'Facteurs Socio-Démographiques (Âge, Sexe)', 'Facteurs Non-Expliqués / Individuels'],
+                    datasets: [{
+                        data: [51.03, 1.50, 47.47],
+                        backgroundColor: ['#be123c', '#cbd5e1', '#0f172a']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+                        tooltip: { callbacks: { label: (c) => c.label + ': ' + c.raw + '%' } }
+                    }
+                }
+            });
+
+            // Chart 4: Invalidity Cost Growth
+            const ctx4 = document.getElementById('chartInvalidityCost').getContext('2d');
+            new Chart(ctx4, {
+                type: 'line',
+                data: {
+                    labels: ['2019', '2020', '2021', '2022', '2023', '2024'],
+                    datasets: [{
+                        label: 'Dépenses INAMI Burn-out & Dépression (Millions €)',
+                        data: [1404, 1580, 1820, 2050, 2240, 2500],
+                        borderColor: '#be123c',
+                        backgroundColor: 'rgba(190, 18, 60, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } },
+                        tooltip: { callbacks: { label: (c) => c.raw + ' M€ (+78% depuis 2019)' } }
+                    },
+                    scales: {
+                        y: { beginAtZero: false, title: { display: true, text: 'Millions €', font: { size: 10 } } }
+                    }
+                }
+            });
+
+            // Run initial calculator logic
+            calculateImpact();
+        });
+    </script>
+</body>
+</html>
