@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analyse Critique : Cyberespace & Guerre Hybride</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#0284c7',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                        tactical: {
+                            dark: '#0f172a',
+                            card: '#1e293b',
+                            accent: '#38bdf8',
+                            warning: '#f59e0b',
+                            danger: '#ef4444',
+                            success: '#10b981',
+                            muted: '#64748b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chosen Palette: Warm Tactical Neutral & Slate (Slate 900, Slate 50, Warm Amber & Emerald Accents) -->
+    <!-- Application Structure Plan: 
+         L'application est conçue sous forme de tableau de bord d'analyse stratégique et d'exploration interactive à 4 piliers :
+         1. Synthèse Décisive & Trilemme de Maschmeyer : Présentation des métriques clés et simulateur interactif du "Trilemme Subversif" (Vitesse vs Intensité vs Contrôle) pour démontrer immédiatement pourquoi la "cyberguerre autonome" est une illusion.
+         2. Bilan Empirique & Données Graphiques (2021-2026) : Visualisations dynamique via Chart.js des données réelles du rapport (Chute des attaques critiques CERT-UA en Ukraine, Prédominance du sabotage physique vs cyber par le CSIS, Causes de dommages aux câbles sous-marins).
+         3. Grammaires Doctrinales & Nouvelles Frontières : Comparateur interactif de doctrines (OTAN/UE/France vs Russie vs Chine), modélisation des campagnes d'IA agentique (Storm-1516, Dark Clark) et gouvernance des cyber-proxies.
+         4. Écosystème des Big Tech & Matrice de Résilience : Études de cas (Starshield Oct 2026, Volt/Salt Typhoon), grille comparative postulats vs réalités et plan d'action prioritaire interactif en 4 axes.
+         Cette structure a été retenue car elle déconstruit de manière fluide et logique la complexité académique et opérationnelle du rapport original.
+    -->
+    <!-- Visualization & Content Choices:
+         - Trilemme de Maschmeyer -> Formulaire/Simulateur d'états JS -> Permet au chercheur de manipuler 2 variables pour voir l'impact négatif sur la 3e -> Justification: Compréhension immédiate de la friction opérationnelle sans SVG/Mermaid.
+         - CERT-UA Incidents (2022-2024) -> Chart.js Barres empilées -> Comparaison Attaques destructrices vs Espionnage (CNE) -> Visualisation de la transition stratégique russe.
+         - Typologie des Sabotages en Europe -> Chart.js Donut -> Répartition Sabotage physique (62%) vs Cyber (15%) -> Démonstration visuelle de la rematérialisation des menaces.
+         - Dommages aux Câbles Sous-marins -> Chart.js Camembert -> Origine des incidents (25% raclage d'ancre) -> Mise en relief de la guerre des fonds marins.
+         - Comparateur Doctrinal & IA Agentique -> Onglets dynamiques HTML/JS -> Consultation fluide des modèles sans surcharge cognitive.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 380px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 340px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-sky-500 selection:text-white">
+
+    <!-- Header / Navigation sticky -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🛡️</span>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide text-white leading-tight">CYBER & GUERRE HYBRIDE</h1>
+                    <p class="text-xs text-sky-400 font-mono">ANALYSE STRATÉGIQUE & RECOMPOSITION GÉOPOLITIQUE</p>
+                </div>
+            </div>
+            
+            <nav class="hidden md:flex space-x-1 text-sm font-medium">
+                <button onclick="scrollToSection('dashboard')" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Vue Générale</button>
+                <button onclick="scrollToSection('empirique')" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Données & Limites</button>
+                <button onclick="scrollToSection('doctrines')" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Doctrines & IA</button>
+                <button onclick="scrollToSection('frontieres')" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Big Tech & Fond marins</button>
+                <button onclick="scrollToSection('recommandations')" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition">Recommandations</button>
+            </nav>
+
+            <div class="flex items-center space-x-2">
+                <input type="text" id="globalSearch" onkeyup="filterGlobalContent()" placeholder="Rechercher (ex: Maschmeyer, Volt)..." class="bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-sky-500 w-36 sm:w-48">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub-nav mobile -->
+    <div class="md:hidden bg-slate-950 border-b border-slate-800 px-4 py-2 flex overflow-x-auto space-x-2 text-xs">
+        <button onclick="scrollToSection('dashboard')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 whitespace-nowrap">Vue Générale</button>
+        <button onclick="scrollToSection('empirique')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 whitespace-nowrap">Données</button>
+        <button onclick="scrollToSection('doctrines')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 whitespace-nowrap">Doctrines</button>
+        <button onclick="scrollToSection('frontieres')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 whitespace-nowrap">Big Tech</button>
+        <button onclick="scrollToSection('recommandations')" class="px-2 py-1 rounded bg-slate-800 text-sky-400 whitespace-nowrap">Postures</button>
+    </div>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-10">
+
+        <!-- SECTION 1: DASHBOARD EXECUTIVE & TRILEMME SUBVERSIF -->
+        <section id="dashboard" class="space-y-6">
+            <div class="bg-gradient-to-r from-slate-800 to-slate-900 border border-slate-700 rounded-2xl p-6 shadow-xl">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <div>
+                        <span class="inline-block bg-sky-500/10 text-sky-400 text-xs px-2.5 py-1 rounded-full border border-sky-500/20 font-mono mb-2">SYNTHÈSE DU RAPPORT STRATÉGIQUE</span>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Déconstruction de la Cyberguerre Décisive</h2>
+                        <p class="text-slate-300 text-sm mt-1 max-w-3xl">
+                            Le cyberespace n'est pas une arme magique capable d'effondrer un État sans coup férir, mais un multiplicateur tactique éphémère, un coupe-feu de l'escalade et un vecteur de façonnement cognitif contraint par des limites physiques et logiques strictes.
+                        </p>
+                    </div>
+                    <div class="flex items-center space-x-2 bg-slate-950/60 p-3 rounded-xl border border-slate-800 text-center">
+                        <div>
+                            <p class="text-xs text-slate-400">Période d'Analyse</p>
+                            <p class="text-sm font-bold text-sky-400">2014 – 2026</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Metrics Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">CERT-UA Ukraine</span>
+                        <div class="my-2">
+                            <span class="text-2xl sm:text-3xl font-extrabold text-amber-400">1 048 → 59</span>
+                            <span class="text-xs text-slate-400 block">Attaques destructrices majeures (2022 vs 2024)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Repli massif du GRU/FSB vers l'espionnage (4 315 incidents CNE en 2024).</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sabotage en Europe</span>
+                        <div class="my-2">
+                            <span class="text-2xl sm:text-3xl font-extrabold text-red-400">62 % Physical</span>
+                            <span class="text-xs text-slate-400 block">vs 15 % Cyber/Électronique (CSIS 2024)</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Rematéralisation des actions sous le seuil (incendies, colis piégés, ancres).</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Guerre des Fonds Marins</span>
+                        <div class="my-2">
+                            <span class="text-2xl sm:text-3xl font-extrabold text-emerald-400">25 % Ancres</span>
+                            <span class="text-xs text-slate-400 block">Raclage délibéré de câbles sous-marins</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Tactique hybride asymétrique à fort déni plausible en Mer Baltique et Taïwan.</p>
+                    </div>
+
+                    <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700/60 flex flex-col justify-between">
+                        <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Rupture Technologique</span>
+                        <div class="my-2">
+                            <span class="text-2xl sm:text-3xl font-extrabold text-sky-400">IA Agentique</span>
+                            <span class="text-xs text-slate-400 block">Automatisation complète de la chaîne d'attaque</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">Vitesse machine, création automatisée de zero-days & blanchiment informationnel.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATEUR INTERACTIF DU TRILEMME DE MASCHMEYER -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                    <div>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">⚙️</span>
+                            <h3 class="text-xl font-bold text-white">Simulateur du « Trilemme Subversif » de Lennart Maschmeyer</h3>
+                        </div>
+                        <p class="text-xs text-slate-300 mt-1">
+                            Une cyberopération ne peut maximiser simultanément la <strong>Vitesse</strong>, l'<strong>Intensité</strong> et le <strong>Contrôle</strong>. Sélectionnez 2 variables prioritaires pour observer la friction subie sur la 3ème.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <button id="btn-tri-1" onclick="updateTrilemma('speed-control')" class="tri-btn p-4 rounded-xl border border-sky-500/50 bg-sky-950/40 hover:bg-sky-900/40 text-left transition">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-sky-400 text-sm">Vitesse + Contrôle</span>
+                            <span class="text-xs font-mono bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded">Option A</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Maximiser la rapidité tactique et éviter le débordement.</p>
+                    </button>
+
+                    <button id="btn-tri-2" onclick="updateTrilemma('intensity-control')" class="tri-btn p-4 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-700/50 text-left transition">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-amber-400 text-sm">Intensité + Contrôle</span>
+                            <span class="text-xs font-mono bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded">Option B</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Produire une destruction majeure sans dommage collatéral.</p>
+                    </button>
+
+                    <button id="btn-tri-3" onclick="updateTrilemma('speed-intensity')" class="tri-btn p-4 rounded-xl border border-slate-700 bg-slate-900 hover:bg-slate-700/50 text-left transition">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-red-400 text-sm">Vitesse + Intensité</span>
+                            <span class="text-xs font-mono bg-red-500/20 text-red-300 px-2 py-0.5 rounded">Option C</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Frapper fort et immédiatement.</p>
+                    </button>
+                </div>
+
+                <!-- Simulation Output Box -->
+                <div id="trilemma-result" class="bg-slate-950 p-5 rounded-xl border border-slate-700 space-y-3">
+                    <!-- Dynamic JS content -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: BILAN EMPIRIQUE ET DONNÉES GRAPHIQUES -->
+        <section id="empirique" class="space-y-6">
+            <div class="border-l-4 border-sky-500 pl-4 py-1">
+                <h2 class="text-2xl font-bold text-white">2. Bilan Empirique & Limites Structurelles (2021-2026)</h2>
+                <p class="text-sm text-slate-300 mt-1">
+                    Cette section analyse l'échec des attaques cyber « contre-valeur » (*countervalue*), le repli vers l'espionnage massif (CNE) en Ukraine, la rematéralisation des sabotages physiques en Europe et l'émergence des opérations combinées au Moyen-Orient.
+                </p>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                <!-- Chart 1: Ukraine CERT-UA -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-white text-base">Ukraine : Cyber-incidents CERT-UA</h3>
+                            <span class="text-xs text-sky-400 font-mono">2022 - 2024</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Transition nette des cyberattaques destructrices (CNA) vers l'espionnage silencieux (CNE) après l'échec initial de 2022.
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartUkraine"></canvas>
+                    </div>
+                    <div class="mt-3 text-[11px] text-slate-400 bg-slate-900 p-2 rounded border border-slate-700">
+                        📌 <strong>Note clé :</strong> En 2024, les incidents critiques s'effondrent à 59 cas, tandis que 76 % du ciblage vise le secteur public et militaire pour renseigner la manœuvre cinétique.
+                    </div>
+                </div>
+
+                <!-- Chart 2: Sabotage Europe CSIS -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-white text-base">Sabotages Hybrides en Europe</h3>
+                            <span class="text-xs text-red-400 font-mono">CSIS 2022-2025</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Répartition des modes opératoires russes de subversion recensés en Europe suite au quadruplement des complots.
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartSabotage"></canvas>
+                    </div>
+                    <div class="mt-3 text-[11px] text-slate-400 bg-slate-900 p-2 rounded border border-slate-700">
+                        📌 <strong>Note clé :</strong> Le cyber ne représente que 15 % des sabotages observables. 62 % reposent sur des engins explosifs/incendiaires et attaques physiques (agents jetables).
+                    </div>
+                </div>
+
+                <!-- Chart 3: Câbles sous-marins -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <h3 class="font-bold text-white text-base">Guerre des Fonds Marins</h3>
+                            <span class="text-xs text-emerald-400 font-mono">Insikt Group 24-25</span>
+                        </div>
+                        <p class="text-xs text-slate-300 mb-4">
+                            Causes identifiées des 44 dommages majeurs sur les câbles sous-marins en Mer Baltique et Taïwan.
+                        </p>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartCables"></canvas>
+                    </div>
+                    <div class="mt-3 text-[11px] text-slate-400 bg-slate-900 p-2 rounded border border-slate-700">
+                        📌 <strong>Note clé :</strong> Le raclage d'ancre délibéré (navires de la "flotte fantôme" russe ou navires chinois) constitue 25 % des dommages mondiaux recensés.
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Focus Moyen-Orient & Débordements -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <span>🔥</span> Chronologie des Attaques Hybrides à Effet de Débordement (Spillover) & Synchronisation Cinétique
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-amber-400">Juin 2017 & Fév 2022</span>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Sandworm / GRU</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-white">NotPetya & Viasat KA-SAT</h4>
+                        <p class="text-xs text-slate-300 mt-2">
+                            <em>NotPetya</em> (M.E.Doc) cause 10 Md$ de dégâts mondiaux (Maersk, Merck). <em>AcidRain</em> démolit 40 000 modems Viasat et coupe 5 800 éoliennes Enercon en Allemagne lors de l'invasion de l'Ukraine.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-sky-400">13 - 25 Juin 2025</span>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Predatory Sparrow / Tsahal</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-white">Guerre des Douze Jours (Iran)</h4>
+                        <p class="text-xs text-slate-300 mt-2">
+                            Neutralisation de la banque d'État <em>Bank Sepah</em> et destruction de 90 M$ de crypto sur <em>Nobitex</em> en appui direct des frappes cinétiques. Téhéran coupe Internet à 97 %.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-xs font-bold text-emerald-400">28 Fév - Mars 2026</span>
+                            <span class="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-300">Opération Epic Fury</span>
+                        </div>
+                        <h4 class="font-bold text-sm text-white">C2 Suppression & Réplique Proxy</h4>
+                        <p class="text-xs text-slate-300 mt-2">
+                            Cyberattaque d'isolation de l'Iran réduite à 4 % de connectivité lors des frappes initiales. Réplique iranienne résiduelle via 70+ collectifs hacktivistes (Handala, 313 Team, Cyber Jihad).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: GRAMMAIRES DOCTRINALES ET IA AGENTIQUE -->
+        <section id="doctrines" class="space-y-6">
+            <div class="border-l-4 border-sky-500 pl-4 py-1">
+                <h2 class="text-2xl font-bold text-white">3. Doctrines Comparées, Guerre Cognitive & IA Agentique</h2>
+                <p class="text-sm text-slate-300 mt-1">
+                    Analyse des grammaires stratégiques asymétriques, du blanchiment informationnel industrialisé (*Storm-1516*) et de la rupture opérationnelle provoquée par l'IA agentique en 2025–2026.
+                </p>
+            </div>
+
+            <!-- Table Doctrinale Comparée -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 overflow-x-auto">
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                    <span>🌐</span> Comparative des Grammaires Doctrinales
+                </h3>
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700 bg-slate-900/60 text-slate-300">
+                            <th class="p-3 font-semibold">Paramètre Doctrinal</th>
+                            <th class="p-3 font-semibold text-sky-400">Approche Occidentale (OTAN / UE / FR / US)</th>
+                            <th class="p-3 font-semibold text-amber-400">Approche Russe (Fédération de Russie)</th>
+                            <th class="p-3 font-semibold text-red-400">Approche Chinoise (RPC / APL)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50 text-slate-300">
+                        <tr>
+                            <td class="p-3 font-bold text-white">Concept Directeur</td>
+                            <td class="p-3">Cybersécurité, Opérations multi-domaines, Datasphère & ILI.</td>
+                            <td class="p-3">Confrontation informationnelle (*Informatsionnoye protivoborstvo*).</td>
+                            <td class="p-3">Guerre « intelligentisée » & Destruction des Systèmes.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-white">Périmètre du Domaine</td>
+                            <td class="p-3">Séparation historique IT/OT vs PSYOPS (en cours de convergence).</td>
+                            <td class="p-3">Fusion holistique : Technico-informatique + Psycho-cognitive.</td>
+                            <td class="p-3">Intégration systémique : Cyber, Espace, IA, Guerre Électronique, Cognitif.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-white">Mécanisme Clé</td>
+                            <td class="p-3">Dissuasion par déni, *Defend Forward*, *Persistent Engagement*.</td>
+                            <td class="p-3"><em>Maskirovka</em>, Contrôle Réflexif, Attaque Stratégique de l'Information.</td>
+                            <td class="p-3">Supériorité informationnelle, Paralysie des nœuds C2, Soumission sans combat.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-white">Architecture (2024-2026)</td>
+                            <td class="p-3">NICC de l'OTAN, Bouclier Cyber UE, COMCYBER/CIAE France (4 Md€ LPM).</td>
+                            <td class="p-3">GRU (unités 74455, 29155, Dept Tâches Spéciales), SVR, FSB, Proxies.</td>
+                            <td class="p-3">Force de soutien à l'information (ISF) & Force du cyberespace sous la CMC.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Deep Dive: Blanchiment Informationnel & IA Agentique -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Blanchiment Informationnel (Storm-1516) -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-white text-base flex items-center gap-2">
+                            <span>🎭</span> Blanchiment Informationnel : Le Modèle Storm-1516
+                        </h3>
+                        <span class="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-mono">VIGINUM / GRU 29155</span>
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        Processus en 5 étapes développé par le GRU et le réseau <em>CopyCop</em> (John Mark Dougan) pour infecter l'espace médiatique occidental sans détection immédiate.
+                    </p>
+
+                    <div class="space-y-2 text-xs">
+                        <div class="bg-slate-900 p-2.5 rounded border border-slate-700 flex items-start gap-3">
+                            <span class="bg-amber-500 text-slate-950 font-bold rounded-full w-5 h-5 flex items-center justify-center text-[10px]">1</span>
+                            <div>
+                                <strong class="text-white">Création du Faux Récit :</strong> Génération de deepfakes audio/vidéo ou faux documents décrédibilisant l'Ukraine/Occident.
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 p-2.5 rounded border border-slate-700 flex items-start gap-3">
+                            <span class="bg-amber-500 text-slate-950 font-bold rounded-full w-5 h-5 flex items-center justify-center text-[10px]">2</span>
+                            <div>
+                                <strong class="text-white">Injection par Lanceur d'Alerte :</strong> Diffusion sur YouTube ou réseaux sociaux par un faux journaliste/acteur.
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 p-2.5 rounded border border-slate-700 flex items-start gap-3">
+                            <span class="bg-amber-500 text-slate-950 font-bold rounded-full w-5 h-5 flex items-center justify-center text-[10px]">3</span>
+                            <div>
+                                <strong class="text-white">Blanchiment Média Tiers :</strong> Publication de l'article dans des sites d'actualité rémunérés à l'étranger (ex: Égypte).
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 p-2.5 rounded border border-slate-700 flex items-start gap-3">
+                            <span class="bg-amber-500 text-slate-950 font-bold rounded-full w-5 h-5 flex items-center justify-center text-[10px]">4</span>
+                            <div>
+                                <strong class="text-white">Amplification par Botnet :</strong> Déploiement via le réseau <em>CopyCop</em> (+100 sites miroirs en .fr/.de) et fausses requêtes d'investigation (Matriochka).
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-900 p-2.5 rounded border border-slate-700 flex items-start gap-3">
+                            <span class="bg-amber-500 text-slate-950 font-bold rounded-full w-5 h-5 flex items-center justify-center text-[10px]">5</span>
+                            <div>
+                                <strong class="text-white">Infiltration du Débat Politique :</strong> Reprise non intentionnelle par des figures publiques ou médias occidentaux mainstream.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- IA Agentique en 2026 -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-bold text-white text-base flex items-center gap-2">
+                            <span>🤖</span> La Rupture de l'IA Agentique (2025-2026)
+                        </h3>
+                        <span class="text-xs bg-sky-500/10 text-sky-400 px-2 py-0.5 rounded font-mono">Google GTIG / Anthropic</span>
+                    </div>
+                    <p class="text-xs text-slate-300">
+                        En 2026, les cyberattaquants ne se contentent plus d'écrire des emails de phishing avec des LLM : ils déploient des agents autonomes exécutant l'intrusion à vitesse machine.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <strong class="text-sky-400 block mb-1">Essaims d'Exploitation Autonomes</strong>
+                            Frameworks <em>Hexstrike</em>, <em>Strix</em> & <em>PentAGI</em>. Compromission complète d'environnements Cloud AWS et prise de contrôle admin en &lt; 10 minutes.
+                        </div>
+
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <strong class="text-sky-400 block mb-1">Fonderie de Zero-Days par IA</strong>
+                            Révélation par Anthropic (Sept 2026) d'<em>Appliance Zero-Day Foundry</em> : décompilation automatisée de firmwares générant +12 exploits zero-days par mois.
+                        </div>
+
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <strong class="text-sky-400 block mb-1">Évasion et Rétro-Ingénierie</strong>
+                            Groupe russe <em>GTG-20006</em> : boucle d'IA testant et réécrivant le malware jusqu'à évasion EDR complète, plus rétro-conception du SDK d'un drone militaire captura.
+                        </div>
+
+                        <div class="bg-slate-900 p-3 rounded-xl border border-slate-700">
+                            <strong class="text-sky-400 block mb-1">Poisoning & LLMJacking</strong>
+                            Vol de puissance de calcul cloud pour faire tourner des LLM open-weight (<em>UNC6508</em>) et injections de prompts dans les serveurs MCP pour aveugler les scanners IA (<em>UNC6780</em>).
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- SECTION 4: BIG TECH, VOLT TYPHOON ET SOUVERAINETÉ LOUÉE -->
+        <section id="frontieres" class="space-y-6">
+            <div class="border-l-4 border-sky-500 pl-4 py-1">
+                <h2 class="text-2xl font-bold text-white">4. Big Tech, Pré-positionnement Systémique & Souveraineté Louée</h2>
+                <p class="text-sm text-slate-300 mt-1">
+                    Analyse des opérations de pré-positionnement latent de la Chine (*Volt Typhoon*, *Salt Typhoon*) et de la dépendance stratégique critique des États envers les géants technologiques privés.
+                </p>
+            </div>
+
+            <!-- Volt & Salt Typhoon Focus -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-mono font-bold bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded">APL / Chine (2027 Horizon)</span>
+                        <span class="text-xs text-slate-400">ODNI Threat Assessment 2026</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Campagne Volt Typhoon</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                        Infiltration latente des infrastructures critiques américaines (énergie, eau, transports, ports). L'objectif n'est pas l'espionnage, mais le <strong>pré-positionnement de capacités de sabotage OT</strong> pour paralyser la réponse américaine lors d'une crise dans le détroit de Taïwan.
+                    </p>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-xs text-slate-300 space-y-1">
+                        <div>• Technique : <em>Living-off-the-Land</em> (LOTL) sans malware détectable.</div>
+                        <div>• vulnérabilité : +60 nouveaux points d'accès vulnérables ajoutés chaque jour au réseau électrique US.</div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5">
+                    <div class="flex justify-between items-center mb-3">
+                        <span class="text-xs font-mono font-bold bg-red-500/10 text-red-400 px-2 py-0.5 rounded">MSS / Sichuan Juxinhe</span>
+                        <span class="text-xs text-slate-400">FBI Alert Fév 2026</span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white mb-2">Campagne Salt Typhoon</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed mb-4">
+                        Compromission majeure de plus de 200 organisations dans 80+ pays. En octobre 2024, Salt Typhoon s'est infiltré au cœur du réseau des opérateurs télécoms US (Verizon, AT&T) et a accédé aux <strong>systèmes d'écoutes judiciaires des tribunaux</strong>.
+                    </p>
+                    <div class="bg-slate-900 p-3 rounded-xl border border-slate-700 text-xs text-slate-300 space-y-1">
+                        <div>• Intrusion Garde Nationale : Réseau compromis pendant 9 mois consécutifs en 2024.</div>
+                        <div>• Persistance : Toujours actif en 2026 malgré 18 mois de remédiation continue.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Souveraineté Louée & Droit de Veto des Big Tech -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-6">
+                <h3 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                    <span>🛰️</span> Le Dilemme de la « Souveraineté Louée » (*Rented Sovereignty*) & Droit de Veto Corporatif
+                </h3>
+                <p class="text-xs text-slate-300 mb-6 max-w-4xl">
+                    Les géants technologiques (SpaceX, AWS, Microsoft, Google) disposent d'infrastructures cloud et satellitaires <strong>« a-territoriales »</strong>. En temps de guerre, cela confère à des dirigeants d'entreprises privées un droit de veto <em>de facto</em> sur les opérations militaires d'un État souverain.
+                </p>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
+                        <span class="text-amber-400 font-bold block">Starlink Geofencing (Automne 2022)</span>
+                        <p class="text-slate-300">
+                            SpaceX restreint la connectivité Starlink lors de la contre-offensive ukrainienne dans le Sud à mesure que les troupes progressent en zone occupée, forçant les commandants à se déplacer physiquement et interrompant les assauts.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
+                        <span class="text-red-400 font-bold block">Bridage Starshield (14-15 Octobre 2026)</span>
+                        <p class="text-slate-300">
+                            Plafonnement soudain de la vitesse des terminaux de grade militaire <em>Starshield</em> à 160 km/h. Résultat : déconnexion immédiate des drones ukrainiens de longue portée et annulation des missions avant rétablissement.
+                        </p>
+                    </div>
+
+                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 space-y-2">
+                        <span class="text-sky-400 font-bold block">Clause éthique Anthropic / DoD (2026)</span>
+                        <p class="text-slate-300">
+                            Refus d'Anthropic de lever ses garde-fous interdisant l'usage de son IA pour les armes autonomes létales malgré un contrat de 200 M$ avec le Pentagone, conduisant le DoD à désigner la firme comme un risque d'approvisionnement.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: RECOMMANDATIONS STRATÉGIQUES ET MATRICE FINALE -->
+        <section id="recommandations" class="space-y-6">
+            <div class="border-l-4 border-sky-500 pl-4 py-1">
+                <h2 class="text-2xl font-bold text-white">5. Recommandations Stratégiques pour les Démocraties Libérales</h2>
+                <p class="text-sm text-slate-300 mt-1">
+                    Pour répondre à l'asymétrie éthique et juridique face aux régimes autoritaires, les États membres de l'OTAN et de l'UE doivent faire évoluer leur posture vers la résilience cumulée et le déni proactif.
+                </p>
+            </div>
+
+            <!-- Matrice Postulats vs Empirisme -->
+            <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 overflow-x-auto">
+                <h3 class="text-lg font-bold text-white mb-4">Matrice d'Évaluation Critique : Mythes vs Réalité</h3>
+                <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-700 bg-slate-900/60 text-slate-300">
+                            <th class="p-3 font-semibold">Dimension</th>
+                            <th class="p-3 font-semibold text-red-400">Postulat Conventionnel (Mythe)</th>
+                            <th class="p-3 font-semibold text-emerald-400">Réalité Empirique Constatée (2014-2026)</th>
+                            <th class="p-3 font-semibold text-sky-400">Implication Doctrinale Prioritaire</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50 text-slate-300">
+                        <tr>
+                            <td class="p-3 font-bold text-white">Arme Cyber Autonome</td>
+                            <td class="p-3">Arme décisive capable de paralyser un État à bas coût sans forces conventionnelles.</td>
+                            <td class="p-3">Friction extrême (Trilemme de Maschmeyer). Nécessite des mois de reconnaissance ISR lourde.</td>
+                            <td class="p-3">Traiter le cyber comme un **catalyseur tactique et un appui**, pas comme un substitut au cinétique.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-white">Attaques Civiles (Countervalue)</td>
+                            <td class="p-3">Couper le réseau électrique ou les banques brise la volonté populaire et force la reddition.</td>
+                            <td class="p-3">Futilité coercitive. Crée un ralliement autour du drapeau et gaspille des accès d'espionnage (Kyivstar).</td>
+                            <td class="p-3">Prioriser la **résilience par conception (Security-by-Design)** des infrastructures critiques.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-white">Zone Grise & Escalade</td>
+                            <td class="p-3">Une cyberattaque majeure déclenchera automatiquement l'Article 5 de l'OTAN.</td>
+                            <td class="p-3">Effet coupe-feu (*Firebreak*). Retenue cinétique, mais poussée vers le **sabotage physique** (ancres, incendies).</td>
+                            <td class="p-3">Combiner le déni proactif (*Hunt Forward*) avec l'imposition de coûts inter-domaines.</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-white">Dépendance Big Tech</td>
+                            <td class="p-3">L'externalisation au cloud et au satellite privé offre une résilience sans coût souverain.</td>
+                            <td class="p-3">Souveraineté louée. Droit de veto corporatif en temps réel sur les armes et communications (Starshield).</td>
+                            <td class="p-3">Imposer des obligations légales de continuité en temps de crise et développer des réserves souveraines.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Action Plan Grid (4 Axes) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Axe 1 -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-sky-500 text-slate-950 font-bold rounded-lg w-7 h-7 flex items-center justify-center text-sm">1</span>
+                        <h4 class="font-bold text-white text-sm">Hunt Forward & Sécurisation IT/OT</h4>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Face aux campagnes <em>Volt Typhoon</em> et <em>Salt Typhoon</em>, abandonner la conformité déclarative annuelle. Déployer une surveillance continue de la surface d'exposition, isoler les réseaux industriels (OT) et mener des opérations proactives <strong>Hunt Forward</strong> chez les alliés pour débusquer les intrusions dormantes.
+                    </p>
+                </div>
+
+                <!-- Axe 2 -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-sky-500 text-slate-950 font-bold rounded-lg w-7 h-7 flex items-center justify-center text-sm">2</span>
+                        <h4 class="font-bold text-white text-sm">Protection du Substrat Physique & Fonds Marins</h4>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Accélérer le projet de l'OTAN (juillet 2024) de bascule automatique du trafic des câbles sous-marins vers les constellations satellitaires LEO. Renforcer les navires de réparation (Orange Marine, ASN) et arraisonner systématiquement les navires suspects de la « flotte fantôme » coupables de raclage d'ancre.
+                    </p>
+                </div>
+
+                <!-- Axe 3 -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-sky-500 text-slate-950 font-bold rounded-lg w-7 h-7 flex items-center justify-center text-sm">3</span>
+                        <h4 class="font-bold text-white text-sm">Encadrement des Big Tech & Réserves Cyber</h4>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Créer un cadre juridique contraignant imposant des pénalités financières aux géants de la Tech en cas d'interruption unilatérale de service opérationnel (modèle anti-geofencing). Encadrer formellement les volontaires civils au sein de **Réserves Cyber d'État** pour respecter le droit international (DIH).
+                    </p>
+                </div>
+
+                <!-- Axe 4 -->
+                <div class="bg-slate-800 border border-slate-700 rounded-2xl p-5 space-y-3">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-sky-500 text-slate-950 font-bold rounded-lg w-7 h-7 flex items-center justify-center text-sm">4</span>
+                        <h4 class="font-bold text-white text-sm">Lutte Cognitive & Détection Algorithmique</h4>
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">
+                        Pour contrer l'industrialisation du blanchiment informationnel (<em>Storm-1516</em>, <em>Dark Clark</em>), associer la détection précoce des infrastructures par IA avec la publication immédiate et transparente des preuves d'attribution technique (modèle VIGINUM / FIMI Toolbox de l'UE).
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800 mt-12 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>Analyse Critique de la Place du Cyberespace dans la Guerre Hybride • Plateforme d'Exploration Interactive (2026)</p>
+            <p class="mt-1 text-[11px] text-slate-600">Données basées sur les travaux du CERT-UA, CSIS, Insikt Group, VIGINUM, Google GTIG, Anthropic et de l'École de Géopolitique GEODE.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Smooth scrolling helper
+        function scrollToSection(id) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Trilemma Interactive State Handler
+        const trilemmaData = {
+            'speed-control': {
+                title: "Vitesse + Contrôle = Faible Intensité (Attaques Éphémères)",
+                color: "text-sky-400",
+                badgeBg: "bg-sky-500/20 text-sky-300",
+                desc: "Si vous agissez rapidement tout en gardant un contrôle strict pour éviter tout débordement, vous êtes contraint d'employer des cyberattaques de faible puissance (DDoS, défacements de sites web).",
+                consequence: "⚠️ Impasse stratégique : L'adversaire subit une gêne temporaire (quelques heures), mais l'attaque ne produit aucun effet militaire ou politique durable.",
+                example: "Exemple : Vagues de défacements du groupe pro-russe NoName057(16) contre les sites gouvernementaux européens."
+            },
+            'intensity-control': {
+                title: "Intensité + Contrôle = Extrême Lenteur (Années de Préparation)",
+                color: "text-amber-400",
+                badgeBg: "bg-amber-500/20 text-amber-300",
+                desc: "Si vous visez un sabotage industriel destructeur tout en voulant en contrôler parfaitement les effets, l'opération exige une reconnaissance ISR et une ingénierie spécifique extrêmement lentes.",
+                consequence: "⚠️ Fardeau ISR (Smeets / No Shortcuts) : Infiltration clandestine pendant 12 à 36 mois. Risque d'être découvert avant même d'activer la charge utiles.",
+                example: "Exemple : Stuxnet contre le site nucléaire de Natanz ou le pré-positionnement chinois Volt Typhoon."
+            },
+            'speed-intensity': {
+                title: "Vitesse + Intensité = Perte de Contrôle & Débordement (Spillover)",
+                color: "text-red-400",
+                badgeBg: "bg-red-500/20 text-red-300",
+                desc: "Si vous tentez de frapper vite et fort sans prendre le temps de cartographier la cible, l'attaque échappe à votre contrôle et se propage de manière incontrôlée sur le réseau mondial.",
+                consequence: "⚠️ Crise diplomatique & Attribution : Dommages collatéraux majeurs sur des nations neutres ou alliées entraînant des représailles inter-domaines.",
+                example: "Exemple : NotPetya en 2017 (10 Md$ de pertes mondiales) et AcidRain sur Viasat KA-SAT en février 2022."
+            }
+        };
+
+        function updateTrilemma(key) {
+            const data = trilemmaData[key];
+            const resultBox = document.getElementById('trilemma-result');
+            
+            // Highlight active button
+            document.querySelectorAll('.tri-btn').forEach(btn => {
+                btn.classList.remove('border-sky-500', 'bg-sky-950/40');
+                btn.classList.add('border-slate-700', 'bg-slate-900');
+            });
+
+            if (key === 'speed-control') document.getElementById('btn-tri-1').classList.add('border-sky-500', 'bg-sky-950/40');
+            if (key === 'intensity-control') document.getElementById('btn-tri-2').classList.add('border-sky-500', 'bg-sky-950/40');
+            if (key === 'speed-intensity') document.getElementById('btn-tri-3').classList.add('border-sky-500', 'bg-sky-950/40');
+
+            resultBox.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <h4 class="font-bold ${data.color} text-sm sm:text-base">${data.title}</h4>
+                    <span class="text-xs px-2 py-0.5 rounded font-mono ${data.badgeBg}">Résultat de la Friction</span>
+                </div>
+                <p class="text-xs text-slate-300 leading-relaxed">${data.desc}</p>
+                <div class="p-3 bg-slate-900 rounded-lg border border-slate-800 text-xs font-mono text-slate-200">
+                    ${data.consequence}
+                </div>
+                <p class="text-[11px] text-slate-400 italic">${data.example}</p>
+            `;
+        }
+
+        // Initialize Trilemma on load
+        updateTrilemma('speed-control');
+
+        // Global Search Filter Logic
+        function filterGlobalContent() {
+            const query = document.getElementById('globalSearch').value.toLowerCase();
+            const sections = document.querySelectorAll('main section');
+
+            sections.forEach(sec => {
+                const text = sec.innerText.toLowerCase();
+                if (query === '' || text.includes(query)) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
+        }
+
+        // Initialize Chart.js Graphs
+        window.addEventListener('DOMContentLoaded', () => {
+
+            // Common Chart Config
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.font.family = 'ui-sans-serif, system-ui, sans-serif';
+
+            // Chart 1: Ukraine CERT-UA Incidents
+            const ctxUkraine = document.getElementById('chartUkraine').getContext('2d');
+            new Chart(ctxUkraine, {
+                type: 'bar',
+                data: {
+                    labels: ['2021', '2022', '2023', '2024'],
+                    datasets: [
+                        {
+                            label: 'Incidents Critiques / Haute Sévérité (CNA)',
+                            data: [180, 1048, 240, 59],
+                            backgroundColor: '#ef4444',
+                            borderRadius: 4
+                        },
+                        {
+                            label: 'Espionnage & Incidents Totaux (CNE)',
+                            data: [800, 2100, 2550, 4315],
+                            backgroundColor: '#0284c7',
+                            borderRadius: 4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 12, font: { size: 10 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) label += ': ';
+                                    return label + context.parsed.y + ' cas';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { grid: { display: false } },
+                        y: { grid: { color: '#334155' } }
+                    }
+                }
+            });
+
+            // Chart 2: Sabotage en Europe (CSIS)
+            const ctxSabotage = document.getElementById('chartSabotage').getContext('2d');
+            new Chart(ctxSabotage, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Explosifs & Incendies (35%)', 'Instruments Physiques/Coupants (27%)', 'Cyber & Guerre Électronique (15%)', 'Autres & Infiltrations (23%)'],
+                    datasets: [{
+                        data: [35, 27, 15, 23],
+                        backgroundColor: ['#ef4444', '#f59e0b', '#0284c7', '#64748b'],
+                        borderWidth: 2,
+                        borderColor: '#1e293b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: Câbles Sous-Marins (Insikt Group)
+            const ctxCables = document.getElementById('chartCables').getContext('2d');
+            new Chart(ctxCables, {
+                type: 'pie',
+                data: {
+                    labels: ['Raclage d\'Ancre Délibéré (25%)', 'Cause Inconnue / Suspicion (31%)', 'Pêche & Accidents Civils (24%)', 'Défauts Techniques (20%)'],
+                    datasets: [{
+                        data: [25, 31, 24, 20],
+                        backgroundColor: ['#10b981', '#64748b', '#38bdf8', '#f59e0b'],
+                        borderWidth: 2,
+                        borderColor: '#1e293b'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { boxWidth: 10, font: { size: 9 } }
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+</body>
+</html>
