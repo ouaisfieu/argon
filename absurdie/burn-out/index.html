@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Burn-out & Bore-out en Belgique : Statut, Enjeux et Analyses</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom Styles & Color Palette */
+        :root {
+            --bg-neutral: #FDFBF7;
+            --card-bg: #FFFFFF;
+            --text-main: #2D3748;
+            --accent-terracotta: #C56B38;
+            --accent-soft-red: #E53E3E;
+            --accent-teal: #319795;
+            --border-color: #E2E8F0;
+        }
+        body {
+            background-color: var(--bg-neutral);
+            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 380px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .tab-btn.active {
+            border-bottom: 3px solid #C56B38;
+            color: #C56B38;
+            font-weight: 600;
+        }
+        .step-card {
+            transition: all 0.25s ease-in-out;
+        }
+        .step-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased">
+
+<!-- Chosen Palette: Warm Terracotta & Cream Neutral (Background: #FDFBF7, Primary Text: #2D3748, Accent: #C56B38, Muted Red: #E53E3E, Muted Teal: #319795) -->
+<!-- Application Structure Plan: Interactive single-page report explorer organized into four logical, task-oriented sections: 1. Synthesis & Legal Status (comparing burnout, boreout, brownout), 2. The 4 Structural Locks (detailed analysis with comparative budget bar chart), 3. The "Scandal" Dynamics (data dashboard with gender bias and age evolution charts), and 4. Actionable Solutions & 2026 Care Pathways (interactive decision tool & Fedris pathway guide). Designed for clear navigation, quick comparison, and intuitive drill-down into complex Belgian legal/financial concepts. -->
+<!-- Visualization & Content Choices:
+     - Key Metric Cards -> Inform -> Highlighting top figures (55,802 cases, €2.7B INAMI cost) -> Interactive counters & context modals.
+     - Budget Gap Chart -> Compare -> Chart.js Bar Chart comparing Fedris total budget (€258M) vs INAMI burnout costs (€908.5M) -> Canvas.
+     - Gender & System Disparity -> Compare -> Chart.js Doughnut charts showing 85% male Fedris vs 69% female INAMI -> Canvas.
+     - Age Evolution Chart -> Trend -> Chart.js Line Chart (2021-2025 evolution by age group) -> Canvas with dynamic toggles.
+     - Decision Tree / Care Pathways -> Organize -> Interactive HTML/CSS wizard for worker options -> Clickable step-by-step navigation -> Pure JS/Tailwind (NO Mermaid/SVG).
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <!-- Navigation Bar -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <span class="text-2xl font-bold text-amber-800">🇧🇪 Épuisement au Travail</span>
+                    <span class="hidden md:inline-block text-xs bg-amber-100 text-amber-800 px-2.5 py-0.5 rounded-full font-medium">Analyse Légale & Chiffres 2026</span>
+                </div>
+                <nav class="hidden md:flex space-x-6 text-sm font-medium text-gray-600">
+                    <a href="#overview" class="hover:text-amber-700 transition">Aperçu</a>
+                    <a href="#legal" class="hover:text-amber-700 transition">Statut Juridique</a>
+                    <a href="#locks" class="hover:text-amber-700 transition">Les 4 Verrous</a>
+                    <a href="#scandal" class="hover:text-amber-700 transition">Inégalités & Enjeux</a>
+                    <a href="#solutions" class="hover:text-amber-700 transition">Dispositifs & Recours</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Hero & Key Indicators Section -->
+        <section id="overview" class="space-y-6">
+            <div class="bg-gradient-to-r from-amber-900 to-stone-800 rounded-2xl p-6 md:p-10 text-white shadow-lg">
+                <div class="max-w-3xl space-y-4">
+                    <span class="inline-block px-3 py-1 bg-amber-700/60 text-amber-200 text-xs rounded-md uppercase tracking-wider font-semibold">Dossier Spécial Belgique</span>
+                    <h1 class="text-2xl md:text-4xl font-extrabold leading-tight">
+                        Pourquoi le Burn-out et le Bore-out ne sont-ils pas des maladies professionnelles ?
+                    </h1>
+                    <p class="text-amber-100 text-sm md:text-base leading-relaxed">
+                        En Belgique, ni le burn-out ni le bore-out ne donnent droit aux indemnités de l'Agence fédérale des risques professionnels (Fedris). Cette application décrypte les raisons techniques, cliniques et financières de cette situation, ainsi que les dispositifs de prise en charge existants en 2026.
+                    </p>
+                </div>
+
+                <!-- KPI Ticker Grid -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-8 pt-6 border-t border-amber-700/50">
+                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl border border-white/10">
+                        <div class="text-xs text-amber-200 font-medium">Invalides Burn-out (>1 an)</div>
+                        <div class="text-2xl md:text-3xl font-bold mt-1 text-white">55 802</div>
+                        <div class="text-xs text-amber-300 mt-1">▲ +58,8 % en 4 ans (INAMI)</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl border border-white/10">
+                        <div class="text-xs text-amber-200 font-medium">Coût Annuel INAMI</div>
+                        <div class="text-2xl md:text-3xl font-bold mt-1 text-white">908,5 M€</div>
+                        <div class="text-xs text-amber-300 mt-1">Burn-out seul en 2024</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl border border-white/10">
+                        <div class="text-xs text-amber-200 font-medium">Budget Fedris MP</div>
+                        <div class="text-2xl md:text-3xl font-bold mt-1 text-white">258 M€</div>
+                        <div class="text-xs text-amber-300 mt-1">3,5× inférieur au burn-out</div>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur p-4 rounded-xl border border-white/10">
+                        <div class="text-xs text-amber-200 font-medium">Surreprésentation Féminine</div>
+                        <div class="text-2xl md:text-3xl font-bold mt-1 text-white">69 %</div>
+                        <div class="text-xs text-amber-300 mt-1">Des invalides psy à l'INAMI</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: Statut Juridique & Matrice Comparative -->
+        <section id="legal" class="bg-white rounded-xl p-6 md:p-8 shadow-sm border border-gray-200 space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900">1. L'Architecture Juridique Belge : La Subtile Frontière</h2>
+                <p class="text-gray-600 text-sm mt-1">
+                    Cette section clarifie le statut exact des différents syndromes d'épuisement au travail au regard de la législation belge (Lois coordonnées du 3 juin 1970). Explorez la matrice ci-dessous pour comprendre la distinction fondamentale entre « maladie professionnelle » et « maladie liée au travail ».
+                </p>
+            </div>
+
+            <!-- Tab Navigation for Legal Framework -->
+            <div class="flex border-b border-gray-200 overflow-x-auto space-x-4 text-sm font-medium">
+                <button onclick="switchTab('matrix')" id="tab-matrix" class="tab-btn active pb-3 px-1 whitespace-nowrap">Matrice Comparative</button>
+                <button onclick="switchTab('regimes')" id="tab-regimes" class="tab-btn pb-3 px-1 whitespace-nowrap">Les 3 Régimes de la Loi de 1970</button>
+            </div>
+
+            <!-- Content Tab 1: Matrice -->
+            <div id="content-matrix" class="space-y-4">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm border-collapse">
+                        <thead>
+                            <tr class="bg-stone-100 text-stone-800 font-semibold border-b border-stone-200">
+                                <th class="p-3">Critère</th>
+                                <th class="p-3 bg-amber-50 text-amber-900 border-l border-amber-200">Burn-out (Surcharge)</th>
+                                <th class="p-3">Bore-out (Sous-charge / Ennui)</th>
+                                <th class="p-3">Brown-out (Perte de sens)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200 text-gray-700">
+                            <tr>
+                                <td class="p-3 font-medium bg-gray-50">Origine principale</td>
+                                <td class="p-3 bg-amber-50/50 border-l border-amber-200">Stress chronique, contraintes élevées, manque de ressources</td>
+                                <td class="p-3">Sous-stimulation, placardisation, absence de travail confié</td>
+                                <td class="p-3">Dissonance éthique, absurdité des tâches, absence de valeur</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium bg-gray-50">Statut Liste Fedris (Art. 30)</td>
+                                <td class="p-3 bg-amber-50/50 border-l border-amber-200 text-red-600 font-medium">❌ Non reconnu (Exclus)</td>
+                                <td class="p-3 text-red-600 font-medium">❌ Non reconnu (Exclus)</td>
+                                <td class="p-3 text-red-600 font-medium">❌ Non reconnu (Exclus)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium bg-gray-50">Statut Art. 62bis (Fedris)</td>
+                                <td class="p-3 bg-amber-50/50 border-l border-amber-200 text-teal-700 font-semibold">
+                                    ✅ « Maladie liée au travail » (AR 6 mars 2024)
+                                    <span class="block text-xs font-normal text-gray-500 mt-0.5">Accès gratuit au parcours d'accompagnement. 0 € indemnité.</span>
+                                </td>
+                                <td class="p-3 text-gray-500">❌ Exclus de l'Art. 62bis</td>
+                                <td class="p-3 text-gray-500">❌ Exclus de l'Art. 62bis</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium bg-gray-50">Couverture Financière</td>
+                                <td class="p-3 bg-amber-50/50 border-l border-amber-200">Mutualité / INAMI (Régime maladie ordinaire)</td>
+                                <td class="p-3">Mutualité / INAMI (Régime maladie ordinaire)</td>
+                                <td class="p-3">Mutualité / INAMI (Régime maladie ordinaire)</td>
+                            </tr>
+                            <tr>
+                                <td class="p-3 font-medium bg-gray-50">Recours Spécifique Droit du Travail</td>
+                                <td class="p-3 bg-amber-50/50 border-l border-amber-200">Intervention psychosociale (CPAP / Personne de confiance)</td>
+                                <td class="p-3">Action en **Harcèlement moral** (Art. 32ter - indemnité 6 mois si placardisation)</td>
+                                <td class="p-3">Intervention psychosociale sur l'organisation ("5T")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Content Tab 2: Regimes -->
+            <div id="content-regimes" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 rounded-lg bg-stone-50 border border-stone-200 space-y-2">
+                    <div class="text-xs font-bold text-amber-800 uppercase tracking-wider">1. Système Fermé (Art. 30)</div>
+                    <h3 class="font-bold text-gray-900">La Liste Officielle (+150 maladies)</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Présomption légale automatique de causalité. Donne droit à 90 % du salaire de base, le remboursement à 100 % des soins et des rentes viagères.
+                    </p>
+                    <div class="text-xs font-semibold text-red-600 pt-2">→ Les troubles psychiques en sont 100 % exclus.</div>
+                </div>
+
+                <div class="p-4 rounded-lg bg-stone-50 border border-stone-200 space-y-2">
+                    <div class="text-xs font-bold text-amber-800 uppercase tracking-wider">2. Système Ouvert (Art. 30bis)</div>
+                    <h3 class="font-bold text-gray-900">Système « Hors Liste »</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Le travailleur doit prouver seul un lien de causalité « direct et déterminant » et une exposition supérieure à la population générale.
+                    </p>
+                    <div class="text-xs font-semibold text-amber-700 pt-2">→ Mur probatoire : +60 % de rejets administratifs par Fedris.</div>
+                </div>
+
+                <div class="p-4 rounded-lg bg-amber-50 border border-amber-200 space-y-2">
+                    <div class="text-xs font-bold text-amber-800 uppercase tracking-wider">3. Compromis Préventif (Art. 62bis)</div>
+                    <h3 class="font-bold text-gray-900">Maladie en Relation avec le Travail</h3>
+                    <p class="text-xs text-gray-600 leading-relaxed">
+                        Créé pour les affections où le travail est une cause partielle. Permet de financer des programmes de prévention (ex: AR 6 mars 2024 pour le burn-out).
+                    </p>
+                    <div class="text-xs font-semibold text-teal-700 pt-2">→ Prise en charge des soins, mais 0 € de compensation de salaire.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Les 4 Verrous de la Non-Reconnaissance -->
+        <section id="locks" class="bg-white rounded-xl p-6 md:p-8 shadow-sm border border-gray-200 space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900">2. Pourquoi ce Refus ? Les 4 Verrous Structurels</h2>
+                <p class="text-gray-600 text-sm mt-1">
+                    L'absence du burn-out et du bore-out du tableau des maladies professionnelles repose sur quatre arguments majeurs avancés par le Service public fédéral Emploi (BeSWIC), Fedris et les autorités médicales. Cliquez sur chaque verrou pour explorer les arguments et visualisez le choc budgétaire ci-dessous.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                <!-- Accordion / Cards for the 4 Locks -->
+                <div class="space-y-3">
+                    <!-- Lock 1 -->
+                    <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-amber-500 transition bg-stone-50" onclick="toggleLock('lock1')">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-amber-900 text-sm">1. Verrou Clinique & Nosologique</h3>
+                            <span id="icon-lock1" class="text-amber-700 font-bold text-lg">+</span>
+                        </div>
+                        <div id="text-lock1" class="mt-2 text-xs text-gray-600 leading-relaxed hidden">
+                            Ni l'OMS (CIM-11 code QD85) ni le Conseil supérieur de la santé ne considèrent le burn-out comme une maladie médicale autonome, mais comme un « phénomène lié au travail ». Sans biomarqueur objectif, le diagnostic reste un diagnostic d'élimination, rendant l'évaluation univoque par les assureurs impossible. Le bore-out n'a aucune codification médicale.
+                        </div>
+                    </div>
+
+                    <!-- Lock 2 -->
+                    <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-amber-500 transition bg-stone-50" onclick="toggleLock('lock2')">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-amber-900 text-sm">2. Verrou Étiologique (Multifactorialité)</h3>
+                            <span id="icon-lock2" class="text-amber-700 font-bold text-lg">+</span>
+                        </div>
+                        <div id="text-lock2" class="mt-2 text-xs text-gray-600 leading-relaxed hidden">
+                            Le système belge de 1927 exige que le travail soit la cause prépondérante et directe (modèle monocausal). Pour le burn-out, les autorités estiment que des facteurs personnels (perfectionnisme, surengagement) et familiaux s'entremêlent avec les contraintes professionnelles. Appliquer la causalité flexible ouvrirait une « boîte de Pandore ».
+                        </div>
+                    </div>
+
+                    <!-- Lock 3 -->
+                    <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-amber-500 transition bg-stone-50" onclick="toggleLock('lock3')">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-amber-900 text-sm">3. Verrou Juridique & Actuariel</h3>
+                            <span id="icon-lock3" class="text-amber-700 font-bold text-lg">+</span>
+                        </div>
+                        <div id="text-lock3" class="mt-2 text-xs text-gray-600 leading-relaxed hidden">
+                            La reconnaissance en maladie professionnelle octroie l'immunité civile à l'employeur et distribue des rentes d'incapacité permanente viagères. Transposer des rentes à vie à des syndromes psychiques réversibles et évolutifs pose un problème de cohérence assurantielle majeure.
+                        </div>
+                    </div>
+
+                    <!-- Lock 4 -->
+                    <div class="border border-gray-200 rounded-lg p-4 cursor-pointer hover:border-amber-500 transition bg-stone-50" onclick="toggleLock('lock4')">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-amber-900 text-sm">4. Verrou Budgétaire (Le Mur Financier)</h3>
+                            <span id="icon-lock4" class="text-amber-700 font-bold text-lg">-</span>
+                        </div>
+                        <div id="text-lock4" class="mt-2 text-xs text-gray-600 leading-relaxed">
+                            Le coût annuel du burn-out en invalidité à l'INAMI (908,5 M€ en 2024) représente **3,5 fois le budget total de Fedris** pour l'ensemble des maladies professionnelles de Belgique (258 M€). Basculer le burn-out vers Fedris imposerait une explosion des cotisations patronales.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Chart 1: Budget Comparison -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200 flex flex-col items-center">
+                    <h3 class="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 text-center">
+                        Comparaison des Budgets Annuels (2024 - en Millions d'Euros)
+                    </h3>
+                    <div class="chart-container">
+                        <canvas id="budgetChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2 text-center italic">
+                        Source : Statistiques officielles INAMI (2024) & Rapport annuel ONSS/Fedris (2025).
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Pourquoi le terme "Scandale" ? (Inégalités & Enjeux) -->
+        <section id="scandal" class="bg-white rounded-xl p-6 md:p-8 shadow-sm border border-gray-200 space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900">3. Les Critiques Sociale et Syndicale : Pourquoi parle-t-on de « Scandale » ?</h2>
+                <p class="text-gray-600 text-sm mt-1">
+                    Les organisations syndicales (CSC, FGTB) et les chercheurs dénoncent l'externalisation du coût du mal-être au travail vers la sécurité sociale générale (INAMI) et une discrimination indirecte de genre et d'âge. Explorez les deux tableaux de bord ci-dessous.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Dashboard Element 1: Gender Bias -->
+                <div class="bg-stone-50 p-5 rounded-xl border border-stone-200 space-y-4">
+                    <div class="border-b border-stone-300 pb-2">
+                        <h3 class="font-bold text-stone-900 text-sm">Le Biais de Genre Systemique</h3>
+                        <p class="text-xs text-gray-600 mt-1">
+                            Alors que 85 % des personnes indemnisées par Fedris pour maladie professionnelle sont des hommes (métiers industriels), 69 % des invalides pour burn-out à l'INAMI sont des femmes.
+                        </p>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="genderChart"></canvas>
+                    </div>
+
+                    <div class="bg-amber-100/60 p-3 rounded-lg border border-amber-200 text-xs text-amber-900 leading-relaxed">
+                        <strong>Impact financier pour les femmes :</strong> En incapacité INAMI, la majorité des femmes invalides (62,65 %) perçoivent une indemnité réduite au taux de cohabitante, alors qu'une maladie professionnelle Fedris garantit 90 % du salaire brut.
+                    </div>
+                </div>
+
+                <!-- Dashboard Element 2: Age Demographics -->
+                <div class="bg-stone-50 p-5 rounded-xl border border-stone-200 space-y-4">
+                    <div class="border-b border-stone-300 pb-2">
+                        <h3 class="font-bold text-stone-900 text-sm">Explosion par Tranches d'Âge (2021-2025)</h3>
+                        <p class="text-xs text-gray-600 mt-1">
+                            Le nombre de cas d'invalidité pour burn-out a plus que doublé chez les jeunes de moins de 30 ans (+103,4 %), tandis que les plus de 60 ans subissent l'allongement des carrières.
+                        </p>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="ageChart"></canvas>
+                    </div>
+
+                    <div class="flex justify-center space-x-2 text-xs">
+                        <button onclick="updateAgeChart('burnout')" class="px-3 py-1 bg-amber-700 text-white rounded hover:bg-amber-800 transition">Burn-out Seul</button>
+                        <button onclick="updateAgeChart('total')" class="px-3 py-1 bg-stone-300 text-stone-800 rounded hover:bg-stone-400 transition">Burn-out + Dépression</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Dispositifs 2024-2026 & Recours Concrets -->
+        <section id="solutions" class="bg-white rounded-xl p-6 md:p-8 shadow-sm border border-gray-200 space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+                <h2 class="text-xl md:text-2xl font-bold text-gray-900">4. Dispositifs en 2026 & Voies de Recours pour le Travailleur</h2>
+                <p class="text-gray-600 text-sm mt-1">
+                    Face au refus d'indemnisation par Fedris, des alternatives existent : le trajet de prévention du burn-out (AR 6 mars 2024), la nouvelle cotisation patronale ONSS de 30 % (2026) et les actions en harcèlement.
+                </p>
+            </div>
+
+            <!-- Interactive Pathway Guide for Fedris Prevention Program -->
+            <div class="space-y-4">
+                <h3 class="font-bold text-gray-800 text-base flex items-center space-x-2">
+                    <span class="bg-teal-700 text-white text-xs px-2 py-0.5 rounded">Programme Fedris AR 2024</span>
+                    <span>Le Trajet d'Accompagnement Gratuit du Burn-out (5 Volets)</span>
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+                    <div class="step-card bg-stone-50 border border-stone-200 p-3 rounded-lg text-xs space-y-1">
+                        <div class="font-bold text-teal-800">1. Dépistage</div>
+                        <div class="text-gray-600">2 séances max. avec le coordinateur de trajet pour valider le stade précoce.</div>
+                    </div>
+                    <div class="step-card bg-stone-50 border border-stone-200 p-3 rounded-lg text-xs space-y-1">
+                        <div class="font-bold text-teal-800">2. Volet Travail</div>
+                        <div class="text-gray-600">8 séances sur les aspects organisationnels + 1 séance avec le médecin du travail.</div>
+                    </div>
+                    <div class="step-card bg-stone-50 border border-stone-200 p-3 rounded-lg text-xs space-y-1">
+                        <div class="font-bold text-teal-800">3. Psy Individuel</div>
+                        <div class="text-gray-600">10 séances individuelles avec un psychologue conventionné par Fedris.</div>
+                    </div>
+                    <div class="step-card bg-stone-50 border border-stone-200 p-3 rounded-lg text-xs space-y-1">
+                        <div class="font-bold text-teal-800">4. Volet Corporel</div>
+                        <div class="text-gray-600">3 séances avec un kinésithérapeute pour les symptômes physiques du stress.</div>
+                    </div>
+                    <div class="step-card bg-stone-50 border border-stone-200 p-3 rounded-lg text-xs space-y-1">
+                        <div class="font-bold text-teal-800">5. Suivi</div>
+                        <div class="text-gray-600">2 séances post-trajet pour consolidation. Transport remboursé (1000 km).</div>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 border border-red-200 p-3 rounded-lg text-xs text-red-900">
+                    <strong>⚠️ Condition stricte de souscription :</strong> Être au travail OU en arrêt depuis <strong>moins de 2 mois</strong> au moment de la demande. Ce programme vise la prévention secondaire précoce et est réservé au secteur privé/pouvoirs locaux (hors indépendants).
+                </div>
+            </div>
+
+            <!-- Interactive Decision Tree Tool -->
+            <div class="bg-stone-50 p-6 rounded-xl border border-stone-200 space-y-4">
+                <h3 class="font-bold text-stone-900 text-sm uppercase tracking-wider">
+                    Orientation : Quelle démarche activer selon votre situation ?
+                </h3>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <button onclick="showAdvice('burnout_early')" class="p-4 bg-white border border-gray-300 rounded-lg text-left hover:border-amber-600 hover:shadow-sm transition">
+                        <div class="font-bold text-amber-900">Burn-out (Arrêt &lt; 2 mois)</div>
+                        <div class="text-gray-500 mt-1">Vous ressentez un épuisement sévère mais êtes encore au travail ou arrêté depuis peu.</div>
+                    </button>
+
+                    <button onclick="showAdvice('boreout')" class="p-4 bg-white border border-gray-300 rounded-lg text-left hover:border-amber-600 hover:shadow-sm transition">
+                        <div class="font-bold text-amber-900">Bore-out / Placardisation</div>
+                        <div class="text-gray-500 mt-1">Vous souffrez d'un ennui extrême ou d'une mise à l'écart délibérée au bureau.</div>
+                    </button>
+
+                    <button onclick="showAdvice('public_sector')" class="p-4 bg-white border border-gray-300 rounded-lg text-left hover:border-amber-600 hover:shadow-sm transition">
+                        <div class="font-bold text-amber-900">Agent du Secteur Public</div>
+                        <div class="text-gray-500 mt-1">Vous travaillez dans la fonction publique locale, régionale ou fédérale.</div>
+                    </button>
+                </div>
+
+                <!-- Dynamic Advice Box -->
+                <div id="advice-box" class="p-4 bg-amber-100/70 border border-amber-300 rounded-lg text-xs text-amber-950 hidden">
+                    <!-- Dynamic content injected by JS -->
+                </div>
+            </div>
+
+            <!-- European Comparison Matrix -->
+            <div class="space-y-3">
+                <h3 class="font-bold text-gray-800 text-sm">Regard Européen : La Belgique est-elle isolée ?</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="font-bold text-gray-900">🇫🇷 France</div>
+                        <p class="text-gray-600 mt-1">
+                            Reconnaissance via le système « hors-tableau » (CRRMP) si l'incapacité permanente est &ge; 25 %. Taux de reconnaissance : 52 %.
+                        </p>
+                    </div>
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="font-bold text-gray-900">🇳🇱 Pays-Bas</div>
+                        <p class="text-gray-600 mt-1">
+                            L'employeur paie directement le maintien de salaire pendant 2 ans d'arrêt (coût moyen : 45 000 €/travailleur).
+                        </p>
+                    </div>
+                    <div class="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                        <div class="font-bold text-gray-900">🇸🇪 Suède</div>
+                        <p class="text-gray-600 mt-1">
+                            Le syndrome d'épuisement est le 1er diagnostic reconnu en maladie professionnelle psychique (32 % des cas reconnus).
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-400 py-6 border-t border-stone-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+            <p>Application basée sur le rapport synthétique « Burn-out et bore-out en Belgique » - Données INAMI, ONSS & Fedris 2024-2026.</p>
+            <p class="text-stone-500">Conçu à des fins d'information et d'exploration pédagogique des politiques de santé au travail.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Global Data Objects
+        const chartData = {
+            budget: {
+                labels: ['Fedris (Total Maladies Prof.)', 'INAMI (Burn-out Seul)', 'INAMI (Burn-out + Dépression)'],
+                values: [258, 908.5, 2698.2]
+            },
+            gender: {
+                fedris: [85, 15], // Men vs Women
+                inami: [31, 69]   // Men vs Women
+            },
+            age: {
+                burnout: {
+                    labels: ['< 30 ans', '30-34 ans', '35-49 ans', '50-59 ans', '60+ ans'],
+                    values2021: [1135, 2405, 15645, 9982, 5978],
+                    values2025: [2309, 4781, 21320, 17007, 10385]
+                },
+                total: {
+                    labels: ['< 30 ans', '30-34 ans', '35-49 ans', '50-59 ans', '60+ ans'],
+                    values2021: [4820, 8910, 52100, 33200, 18422],
+                    values2025: [7785, 13721, 65400, 37900, 30554]
+                }
+            }
+        };
+
+        let budgetChartObj = null;
+        let genderChartObj = null;
+        let ageChartObj = null;
+
+        // Tab Switching Logic
+        function switchTab(tabName) {
+            document.getElementById('content-matrix').classList.add('hidden');
+            document.getElementById('content-regimes').classList.add('hidden');
+            document.getElementById('tab-matrix').classList.remove('active');
+            document.getElementById('tab-regimes').classList.remove('active');
+
+            if (tabName === 'matrix') {
+                document.getElementById('content-matrix').classList.remove('hidden');
+                document.getElementById('tab-matrix').classList.add('active');
+            } else {
+                document.getElementById('content-regimes').classList.remove('hidden');
+                document.getElementById('tab-regimes').classList.add('active');
+            }
+        }
+
+        // Lock Toggle Logic
+        function toggleLock(lockId) {
+            const el = document.getElementById('text-' + lockId);
+            const icon = document.getElementById('icon-' + lockId);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                icon.innerText = '-';
+            } else {
+                el.classList.add('hidden');
+                icon.innerText = '+';
+            }
+        }
+
+        // Initialize Chart.js Graphs
+        function initCharts() {
+            // Chart 1: Budget Comparison
+            const ctxBudget = document.getElementById('budgetChart').getContext('2d');
+            budgetChartObj = new Chart(ctxBudget, {
+                type: 'bar',
+                data: {
+                    labels: ['Fedris (Toutes MP)', 'INAMI (Burn-out)', 'INAMI (Dépression+BO)'],
+                    datasets: [{
+                        label: 'Millions d\'euros (2024)',
+                        data: chartData.budget.values,
+                        backgroundColor: ['#319795', '#C56B38', '#E53E3E'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.raw + ' M€ par an';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Millions €' }
+                        }
+                    }
+                }
+            });
+
+            // Chart 2: Gender Disparity
+            const ctxGender = document.getElementById('genderChart').getContext('2d');
+            genderChartObj = new Chart(ctxGender, {
+                type: 'bar',
+                data: {
+                    labels: ['Fedris (Incapacités Permanentes)', 'INAMI (Invalidité Burn-out/Dép.)'],
+                    datasets: [
+                        {
+                            label: 'Hommes (%)',
+                            data: [85, 31],
+                            backgroundColor: '#4A5568'
+                        },
+                        {
+                            label: 'Femmes (%)',
+                            data: [15, 69],
+                            backgroundColor: '#C56B38'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, max: 100, title: { display: true, text: 'Pourcentage (%)' } }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => context.dataset.label + ': ' + context.raw + '%'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: Age Evolution
+            const ctxAge = document.getElementById('ageChart').getContext('2d');
+            ageChartObj = new Chart(ctxAge, {
+                type: 'line',
+                data: {
+                    labels: chartData.age.burnout.labels,
+                    datasets: [
+                        {
+                            label: 'Effectifs 2021',
+                            data: chartData.age.burnout.values2021,
+                            borderColor: '#A0AEC0',
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Effectifs 2025',
+                            data: chartData.age.burnout.values2025,
+                            borderColor: '#C56B38',
+                            backgroundColor: 'rgba(197, 107, 56, 0.1)',
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => context.dataset.label + ': ' + context.raw.toLocaleString('fr-BE') + ' invalides'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: { title: { display: true, text: 'Nombre de personnes' } }
+                    }
+                }
+            });
+        }
+
+        // Dynamic Update for Age Chart
+        function updateAgeChart(type) {
+            const dataSet = chartData.age[type];
+            ageChartObj.data.labels = dataSet.labels;
+            ageChartObj.data.datasets[0].data = dataSet.values2021;
+            ageChartObj.data.datasets[1].data = dataSet.values2025;
+            ageChartObj.update();
+        }
+
+        // Decision Tree Interactive Tool
+        function showAdvice(type) {
+            const box = document.getElementById('advice-box');
+            box.classList.remove('hidden');
+
+            if (type === 'burnout_early') {
+                box.innerHTML = `
+                    <h4 class="font-bold text-amber-900 text-sm">Action Recommandée : Trajet Fedris (AR 6 mars 2024)</h4>
+                    <p class="mt-1">Demandez immédiatement à votre médecin traitant, médecin du travail ou CPAP de signer le formulaire de demande Fedris (<code>burnout@fedris.be</code>). Vous bénéficierez de <strong>100 % de gratuité</strong> pour 10 séances de psy, 8 séances organisationnelles et 3 séances corporelles. <em>Attention : Vous devez avoir moins de 2 mois d'arrêt !</em></p>
+                `;
+            } else if (type === 'boreout') {
+                box.innerHTML = `
+                    <h4 class="font-bold text-amber-900 text-sm">Action Recommandée : Voie Psychosociale & Harcèlement</h4>
+                    <p class="mt-1">Le bore-out n'est pas couvert par le trajet Fedris. Cependant, si vous subissez une « mise au placard » ou une privation délibérée de travail :
+                    1. Conservez toutes les preuves écrites de vos demandes de tâches.<br>
+                    2. Déposez une <strong>demande d'intervention psychosociale formelle</strong> auprès du CPAP.<br>
+                    3. Si le harcèlement moral est établi (Art. 32ter), vous pouvez réclamer une indemnité forfaitaire de <strong>6 mois de salaire</strong> devant le Tribunal du travail.</p>
+                `;
+            } else if (type === 'public_sector') {
+                box.innerHTML = `
+                    <h4 class="font-bold text-amber-900 text-sm">Action Recommandée : Trajet Fedris Local ou Voie Hors-Liste (Art. 30bis)</h4>
+                    <p class="mt-1">1. Le programme préventif Fedris est ouvert au personnel des administrations locales et provinciales.<br>
+                    2. Pour les agents statutaires du secteur public, la jurisprudence (Cour du travail de Liège, 2021) reconnaît plus facilement une présomption d'exposition au risque dans le système hors-liste. Évaluez un recours avec votre délégué syndical.</p>
+                `;
+            }
+        }
+
+        // Initialize on DOM Loaded
+        window.addEventListener('DOMContentLoaded', () => {
+            initCharts();
+        });
+    </script>
+</body>
+</html>
