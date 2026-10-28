@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sociopo vs CRISP — Évaluation Critique Comparative (2026)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cream: {
+                            50: '#fdfbf7',
+                            100: '#f6f2e9',
+                            200: '#ece3d3',
+                        },
+                        crisp: {
+                            primary: '#1e3a8a',
+                            light: '#eff6ff',
+                            border: '#3b82f6'
+                        },
+                        sociopo: {
+                            primary: '#0d9488',
+                            light: '#f0fdf4',
+                            border: '#14b8a6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<!-- Chosen Palette: Warm Sand & Slate (Background: #fdfbf7 / cream-50, Text: slate-800, CRISP Accent: Indigo-900/Blue, Sociopo Accent: Teal-700/Green, Neutral Card: White/Amber-50) -->
+<!-- Application Structure Plan:
+    1. Hero / En-tête : Présentation de la promesse ("La Belgique politique, enfin lisible"), le verdict scindé global et la métrique-clé.
+    2. Section 1 : Bilan Évaluatif à 6 Axes (Axe Comparatif Interactif avec Graphique Radar / Barres et détails dynamiques).
+    3. Section 2 : Architecture Documentaire & Corpus (Focus sur la structure des 908 entrées de Sociopo vs CRISP et répartition interactive).
+    4. Section 3 : Confrontation Doctrinale (Cas d'étude juridiques et politiques : Fédéralisme, Sonnette d'alarme, Cordon sanitaire, Clivages, Concertation).
+    5. Section 4 : Audit de Maintenance 2025-2026 (Analyse de la fraîcheur des données : Gouvernement De Wever / Arizona, crise bruxelloise Dilliès vs dette de mise à jour du CRISP).
+    6. Section 5 : Gouvernance, Anonymat & Archipel (Méthodologie citoyenne assistée par IA de Ouaisfieu/CCPLC vs Comité de chercheurs du CRISP).
+    7. Section 6 : Recommandateur Interactif ("Quel outil selon votre profil ?") pour guider le choix de l'utilisateur.
+-->
+<!-- Visualization & Content Choices:
+    - Graphique 1 : Radar Chart (Chart.js) -> Compare CRISP et Sociopo sur 6 critères qualitatifs et techniques.
+    - Graphique 2 : Doughnut Chart (Chart.js) -> Répartition des 908 entrées de Sociopo par type de corpus.
+    - Sélecteur Interactif de Cas d'Étude -> Permet de comparer côte à côte les traitements doctrinaux.
+    - Barres de progression & Timeline -> Affiche la dette de maintenance du CRISP vs l'hyper-réactivité 2026 de Sociopo.
+    - Simulator / Wizard -> Recommande l'outil adapté (Étudiant, Chercheur, Juriste, Journaliste, Citoyen).
+    - CONFIRMATION : Aucun SVG graphique utilisé. Aucun Mermaid JS utilisé. Tout est en Canvas Chart.js, HTML/CSS Tailwind et caractères Unicode.
+-->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<body class="bg-cream-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-teal-100 selection:text-teal-900">
+
+    <!-- En-tête / Header -->
+    <header class="bg-white border-b border-cream-200 sticky top-0 z-50 shadow-sm backdrop-blur-md bg-white/90">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🏛️</span>
+                <div>
+                    <h1 class="font-bold text-slate-900 text-lg sm:text-xl tracking-tight leading-none">Sociopo vs CRISP</h1>
+                    <p class="text-xs text-slate-500 font-medium">Évaluation critique & Analyse comparative (Octobre 2026)</p>
+                </div>
+            </div>
+            
+            <!-- Navigation desktop -->
+            <nav class="hidden md:flex space-x-1 lg:space-x-2 text-xs font-semibold">
+                <a href="#diagnostic" class="px-3 py-2 rounded-md text-slate-700 hover:text-teal-700 hover:bg-cream-100 transition">Bilan 6 Axes</a>
+                <a href="#architecture" class="px-3 py-2 rounded-md text-slate-700 hover:text-teal-700 hover:bg-cream-100 transition">Architecture</a>
+                <a href="#doctrinal" class="px-3 py-2 rounded-md text-slate-700 hover:text-teal-700 hover:bg-cream-100 transition">Rigueur Doctrinale</a>
+                <a href="#fraicheur" class="px-3 py-2 rounded-md text-slate-700 hover:text-teal-700 hover:bg-cream-100 transition">Actualité 2025-2026</a>
+                <a href="#gouvernance" class="px-3 py-2 rounded-md text-slate-700 hover:text-teal-700 hover:bg-cream-100 transition">Gouvernance & IA</a>
+                <a href="#recommandateur" class="px-3 py-2 rounded-md bg-teal-800 text-white hover:bg-teal-900 transition shadow-sm">Quel outil choisir ?</a>
+            </nav>
+
+            <button id="mobile-menu-btn" class="md:hidden text-slate-700 hover:text-slate-900 p-2 text-xl">
+                ☰
+            </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-cream-200 px-4 py-3 space-y-2 text-sm font-medium">
+            <a href="#diagnostic" class="block px-3 py-2 rounded-md hover:bg-cream-100">Bilan 6 Axes</a>
+            <a href="#architecture" class="block px-3 py-2 rounded-md hover:bg-cream-100">Architecture</a>
+            <a href="#doctrinal" class="block px-3 py-2 rounded-md hover:bg-cream-100">Rigueur Doctrinale</a>
+            <a href="#fraicheur" class="block px-3 py-2 rounded-md hover:bg-cream-100">Actualité 2025-2026</a>
+            <a href="#gouvernance" class="block px-3 py-2 rounded-md hover:bg-cream-100">Gouvernance & IA</a>
+            <a href="#recommandateur" class="block px-3 py-2 rounded-md bg-teal-800 text-white">Quel outil choisir ?</a>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Hero Section / Contextualisation -->
+        <section class="bg-white rounded-2xl p-6 sm:p-8 border border-cream-200 shadow-sm relative overflow-hidden">
+            <div class="max-w-3xl space-y-4">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold">
+                    <span>⚖️ Audit au 1er Octobre 2026</span>
+                    <span>•</span>
+                    <span>Analyse Comparative</span>
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
+                    « La Belgique politique, enfin lisible » : Pari tenu par Sociopo face au CRISP ?
+                </h2>
+                <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                    L'évaluation croisée de la plateforme citoyenne <strong class="text-slate-900">Sociopo</strong> (<code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">sociopo</code>) et du <strong class="text-slate-900">Vocabulaire politique du CRISP</strong> (<code class="text-xs bg-slate-100 px-1.5 py-0.5 rounded">vocabulairepolitique.be</code>) aboutit à un <span class="bg-amber-100 font-semibold px-1 rounded text-amber-900">verdict scindé</span> :
+                </p>
+            </div>
+
+            <!-- Callout Verdict Scindé Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                <div class="bg-teal-50/80 border border-teal-200 rounded-xl p-4 flex space-x-3 items-start">
+                    <span class="text-2xl">🚀</span>
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-teal-950 text-sm">Victoire de Sociopo</h3>
+                        <p class="text-xs text-teal-900/90 leading-relaxed">
+                            Surpasse le CRISP en <strong>ingénierie pédagogique</strong> (11 simulateurs interactifs), en <strong>réactivité conjoncturelle</strong> (couverture complète 2025–2026), en <strong>maillage sémantique</strong> (908 entrées liées) et en ouverture de données (SKOS quadrilingue, CC BY 4.0).
+                        </p>
+                    </div>
+                </div>
+
+                <div class="bg-indigo-50/80 border border-indigo-200 rounded-xl p-4 flex space-x-3 items-start">
+                    <span class="text-2xl">🎓</span>
+                    <div class="space-y-1">
+                        <h3 class="font-bold text-indigo-950 text-sm">Supériorité Intacte du CRISP</h3>
+                        <p class="text-xs text-indigo-900/90 leading-relaxed">
+                            Conserve une autorité incontestée sur la <strong>rigueur technico-juridique</strong>, la précision des procédures constitutionnelles fines et la <strong>redevabilité scientifique nominative</strong> (équipe permanente de chercheurs).
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Key Metrics Bar -->
+            <div class="mt-8 pt-6 border-t border-cream-200 grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                <div>
+                    <span class="block text-2xl font-black text-teal-700">908</span>
+                    <span class="text-xs text-slate-500 font-medium">Entrées dans Sociopo</span>
+                </div>
+                <div>
+                    <span class="block text-2xl font-black text-teal-700">11</span>
+                    <span class="text-xs text-slate-500 font-medium">Simulateurs interactifs</span>
+                </div>
+                <div>
+                    <span class="block text-2xl font-black text-indigo-900">100%</span>
+                    <span class="text-xs text-slate-500 font-medium">Rigueur légale CRISP</span>
+                </div>
+                <div>
+                    <span class="block text-2xl font-black text-amber-700">2026</span>
+                    <span class="text-xs text-slate-500 font-medium">Synchronisation Arizona</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 1: Diagnostic Comparatif à 6 Axes -->
+        <section id="diagnostic" class="space-y-6">
+            <div class="border-l-4 border-teal-600 pl-4">
+                <h3 class="text-xl font-bold text-slate-900">1. Évaluation Synthétique sur 6 Axes D'Exigence</h3>
+                <p class="text-xs sm:text-sm text-slate-600">
+                    Cette section évalue les deux plateformes selon six critères fondamentaux pour les humanités numériques et la science politique. Sélectionnez un axe dans la liste ou cliquez sur le graphique pour explorer le détail des analyses.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Visualisation Chart -->
+                <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-cream-200 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                        <h4 class="font-bold text-slate-900 text-sm">Profil Comparatif (Notes sur 5)</h4>
+                        <span class="text-xs text-slate-500">Source : Audit Octobre 2026</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="axesRadarChart"></canvas>
+                    </div>
+                    <div class="flex justify-center space-x-6 text-xs font-semibold pt-2">
+                        <span class="inline-flex items-center text-indigo-900">
+                            <span class="w-3 h-3 rounded-full bg-indigo-700 inline-block mr-1.5"></span> CRISP
+                        </span>
+                        <span class="inline-flex items-center text-teal-700">
+                            <span class="w-3 h-3 rounded-full bg-teal-600 inline-block mr-1.5"></span> Sociopo
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Axe Deep Dive Panel -->
+                <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-cream-200 shadow-sm space-y-4">
+                    <h4 class="font-bold text-slate-900 text-sm flex items-center justify-between">
+                        <span>Détail de l'Axe Sélectionné</span>
+                        <span id="selected-axe-badge" class="text-xs bg-teal-100 text-teal-900 font-semibold px-2 py-0.5 rounded">
+                            Ingénierie Pédagogique
+                        </span>
+                    </h4>
+
+                    <div id="axe-details-content" class="space-y-3 text-xs sm:text-sm">
+                        <!-- Content dynamically loaded via JS -->
+                    </div>
+
+                    <div class="bg-cream-100/70 p-3 rounded-xl border border-cream-200 text-xs text-slate-600">
+                        💡 <strong>Verdict Global de l'Axe :</strong> <span id="axe-verdict-text">Sociopo réalise pleinement sa promesse visuelle grâce à ses modules interactifs inédits.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: Architecture & Métadonnées -->
+        <section id="architecture" class="space-y-6">
+            <div class="border-l-4 border-indigo-900 pl-4">
+                <h3 class="text-xl font-bold text-slate-900">2. Architecture Documentaire & simulateurs Pédagogiques</h3>
+                <p class="text-xs sm:text-sm text-slate-600">
+                    Analyse de l'organisation des connaissances. Sociopo unifie 908 entrées dans un graphe relationnel à quadruple accès, complété par 11 outils de simulation interactive pour tester les contraintes institutionnelles.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Doughnut Chart Entrées -->
+                <div class="bg-white p-5 rounded-2xl border border-cream-200 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                        <h4 class="font-bold text-slate-900 text-sm">Composition de la Base Sociopo (908 Entrées)</h4>
+                        <span class="text-xs bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono">CC BY 4.0</span>
+                    </div>
+                    <div class="chart-container" style="height: 260px;">
+                        <canvas id="corpusDoughnutChart"></canvas>
+                    </div>
+                    <p class="text-xs text-slate-500 text-center">
+                        795 entrées directement consultables dans l'index A–Z + fiches électorales & exécutifs interconnectés.
+                    </p>
+                </div>
+
+                <!-- Simulateurs / Outils Interactifs -->
+                <div class="bg-white p-5 rounded-2xl border border-cream-200 shadow-sm space-y-3 flex flex-col justify-between">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm mb-2">Les 11 Modules « Jouer pour Comprendre »</h4>
+                        <p class="text-xs text-slate-600 mb-3">
+                            Contrairement au CRISP qui est un abécédaire textuel statique, Sociopo propose des applications s'exécutant localement dans le navigateur sans traçage.
+                        </p>
+
+                        <div class="space-y-2 max-h-[260px] overflow-y-auto custom-scrollbar pr-1">
+                            <div class="p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-teal-50/50 transition">
+                                <div class="flex justify-between items-center font-bold text-xs text-slate-900">
+                                    <span>🧮 Calculator D'Hondt & Imperiali</span>
+                                    <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">Scrutin</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">
+                                    Simule la dévolution des sièges, l'impact du seuil de 5% et démontre mathématiquement comment Imperiali favorise les grands partis aux communales.
+                                </p>
+                            </div>
+
+                            <div class="p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-teal-50/50 transition">
+                                <div class="flex justify-between items-center font-bold text-xs text-slate-900">
+                                    <span>🧩 Simulateur de Coalitions</span>
+                                    <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">Majorités</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">
+                                    Modélise la majorité absolue (76/150), la double majorité linguistique, le cordon sanitaire et la théorie des coalitions gagnantes de Riker.
+                                </p>
+                            </div>
+
+                            <div class="p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-teal-50/50 transition">
+                                <div class="flex justify-between items-center font-bold text-xs text-slate-900">
+                                    <span>👑 Le Jeu du Formateur</span>
+                                    <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">Exécutif</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">
+                                    Jeu de rôle mettant le joueur en position de former un gouvernement post-juin 2024 en négociant exclusives et arbitrages budgétaires.
+                                </p>
+                            </div>
+
+                            <div class="p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-teal-50/50 transition">
+                                <div class="flex justify-between items-center font-bold text-xs text-slate-900">
+                                    <span>🥪 La Lasagne Institutionnelle</span>
+                                    <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">Compétences</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">
+                                    Carte interactive permettant de choisir une commune pour visualiser l'empilement exact des niveaux de pouvoir compétents.
+                                </p>
+                            </div>
+
+                            <div class="p-2.5 rounded-lg border border-slate-100 bg-slate-50 hover:bg-teal-50/50 transition">
+                                <div class="flex justify-between items-center font-bold text-xs text-slate-900">
+                                    <span>🕸️ Graphe Sémantique & Flashcards</span>
+                                    <span class="text-[10px] bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded">SKOS / Pédagogie</span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">
+                                    Réseau interactif des 908 entrées et répétition espacée multilingue (FR, NL, DE, EN) basée sur l'Open Data (SKOS / JSON-LD).
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 border-t border-slate-100 text-[11px] text-slate-500 font-medium">
+                        ✨ Export de thésaurus au format SKOS (Turtle & JSON-LD) indisponible sur le CRISP.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: Confrontation Doctrinale (Cas d'Études) -->
+        <section id="doctrinal" class="space-y-6">
+            <div class="border-l-4 border-amber-600 pl-4">
+                <h3 class="text-xl font-bold text-slate-900">3. Confrontation Doctrinale : Précision vs Synthèse</h3>
+                <p class="text-xs sm:text-sm text-slate-600">
+                    Où se situe la frontière entre la rigueur juridique d'un centre de recherche de 70 ans et l'efficacité pédagogique d'un lab citoyen ? Cliquez sur les thèmes pour comparer le traitement des notions.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-cream-200 shadow-sm p-5 space-y-6">
+                <!-- Tab Selector -->
+                <div class="flex flex-wrap gap-2 border-b border-slate-100 pb-3" id="doctrinal-tabs">
+                    <button data-topic="sonnette" class="doctrinal-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-teal-800 text-white shadow-sm">
+                        🚨 Sonnette d'alarme
+                    </button>
+                    <button data-topic="cordon" class="doctrinal-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cream-100 text-slate-700 hover:bg-cream-200">
+                        🛡️ Cordon Sanitaire
+                    </button>
+                    <button data-topic="federalisme" class="doctrinal-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cream-100 text-slate-700 hover:bg-cream-200">
+                        🏛️ Fédéralisme & Lois Spéciales
+                    </button>
+                    <button data-topic="concertation" class="doctrinal-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cream-100 text-slate-700 hover:bg-cream-200">
+                        🤝 Concertation Sociale
+                    </button>
+                    <button data-topic="clivages" class="doctrinal-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-cream-100 text-slate-700 hover:bg-cream-200">
+                        🧱 Clivages & Pilarisation
+                    </button>
+                </div>
+
+                <!-- Comparison Dynamic Display -->
+                <div id="doctrinal-content" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Dynamic comparison cards inserted via JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: Audit de Maintenance 2025-2026 -->
+        <section id="fraicheur" class="space-y-6">
+            <div class="border-l-4 border-teal-600 pl-4">
+                <h3 class="text-xl font-bold text-slate-900">4. Audit de Maintenance : La Dette du CRISP vs Sociopo (2025–2026)</h3>
+                <p class="text-xs sm:text-sm text-slate-600">
+                    L'un des constats les plus marquants de l'évaluation : si le CRISP excelle sur le fond, son site web accuse une dette d'actualisation notable, là où Sociopo propose une base intégralement synchronisée au 1er octobre 2026.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Timeline & Freshness Metric -->
+                <div class="lg:col-span-7 bg-white p-5 rounded-2xl border border-cream-200 shadow-sm space-y-4">
+                    <h4 class="font-bold text-slate-900 text-sm border-b border-slate-100 pb-2">
+                        Suivi Direct de la Conjoncture Politique (2024–2026)
+                    </h4>
+
+                    <div class="relative border-l-2 border-teal-200 ml-3 space-y-4 pl-4 py-1 text-xs">
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-0.5 w-3 h-3 rounded-full bg-teal-600 ring-4 ring-white"></span>
+                            <span class="font-bold text-teal-900">3 Février 2025 : Gouvernement Arizona</span>
+                            <p class="text-slate-600 mt-0.5">
+                                Sociopo intègre la coalition De Wever (N-VA, MR, Les Engagés, Vooruit, CD&V) dès son entrée en fonction.
+                            </p>
+                        </div>
+
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-0.5 w-3 h-3 rounded-full bg-teal-600 ring-4 ring-white"></span>
+                            <span class="font-bold text-teal-900">Février 2026 : Dénouement Bruxellois (613 jours)</span>
+                            <p class="text-slate-600 mt-0.5">
+                                Fiche détaillée du gouvernement Boris Dilliès (MR) et de la résolution de la crise régionale.
+                            </p>
+                        </div>
+
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-0.5 w-3 h-3 rounded-full bg-teal-600 ring-4 ring-white"></span>
+                            <span class="font-bold text-teal-900">19 Janvier 2026 : Open Vld devient « Anders »</span>
+                            <p class="text-slate-600 mt-0.5">
+                                Prise en compte immédiate du renommage du parti libéral flamand dans la généalogie partisane.
+                            </p>
+                        </div>
+
+                        <div class="relative">
+                            <span class="absolute -left-[21px] top-0.5 w-3 h-3 rounded-full bg-teal-600 ring-4 ring-white"></span>
+                            <span class="font-bold text-teal-900">2025–2026 : Réformes Socio-Économiques</span>
+                            <p class="text-slate-600 mt-0.5">
+                                Plafonnement de l'indexation, limitation du chômage, taxe de 10% sur plus-values et accord Engie documentés dans 15 dossiers « Rapports de forces ».
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CRISP Maintenance Debt Box -->
+                <div class="lg:col-span-5 bg-white p-5 rounded-2xl border border-cream-200 shadow-sm space-y-4 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center space-x-2 text-red-700 font-bold text-sm border-b border-slate-100 pb-2">
+                            <span>⚠️</span>
+                            <h4>Dette de Maintenance du CRISP</h4>
+                        </div>
+                        <p class="text-xs text-slate-600 mt-2">
+                            Même si le CRISP a mis à jour certaines notices en 2025-2026 (ex: <em>commission paritaire</em>, <em>loi spéciale</em>), de grands pans restent figés :
+                        </p>
+
+                        <ul class="mt-3 space-y-2 text-xs text-slate-700">
+                            <li class="flex items-start space-x-2 bg-amber-50 p-2 rounded border border-amber-200">
+                                <span>📄</span>
+                                <div>
+                                    <strong>Notice « Loi » :</strong> Rédigée en 2022, elle compte 3 lignes suivies de la mention : <em>« Cette définition sera bientôt mise en ligne »</em>.
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-2 bg-amber-50 p-2 rounded border border-amber-200">
+                                <span>⏳</span>
+                                <div>
+                                    <strong>Notices clés bloquées :</strong> <em>Pacte scolaire</em>, <em>Pacte culturel</em>, <em>INAMI</em> ont la mention <em>« Notice en cours de mise à jour »</em>.
+                                </div>
+                            </li>
+                            <li class="flex items-start space-x-2 bg-amber-50 p-2 rounded border border-amber-200">
+                                <span>📅</span>
+                                <div>
+                                    <strong>Dates figées :</strong> Notices <em>Clivage</em> (2018), <em>Cabinet ministériel</em> (2018), <em>Parlement fédéral</em> (2020).
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-slate-100 p-3 rounded-xl text-[11px] text-slate-600">
+                        ⚖️ <strong>Diagnostic :</strong> Le CRISP souffre des contraintes d'une rédaction académique lourde, tandis que Sociopo bénéficie de l'agilité d'une ingénierie assistée par IA.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: Gouvernance, Anonymat & Archipel -->
+        <section id="gouvernance" class="space-y-6">
+            <div class="border-l-4 border-indigo-900 pl-4">
+                <h3 class="text-xl font-bold text-slate-900">5. Gouvernance Éditoriale & Risques de l'IA Citoyenne</h3>
+                <p class="text-xs sm:text-sm text-slate-600">
+                    D'où vient Sociopo ? Analyse forensique de l'écosystème « Ouaisfieu × Yannkeep », de la méthodologie collective et du « cordon d'objectivité » appliqué au projet.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- CRISP Governance -->
+                <div class="bg-white p-5 rounded-2xl border border-indigo-100 shadow-sm space-y-3">
+                    <div class="flex items-center space-x-2 text-indigo-900 font-bold text-sm border-b border-indigo-50 pb-2">
+                        <span>🎓</span>
+                        <h4>CRISP : Modèle Académique Classique</h4>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-2">
+                        <li class="flex items-center justify-between">
+                            <span>Équipe éditoriale :</span>
+                            <strong class="text-slate-900">8 chercheurs permanents identifiés</strong>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Auteurs des notices :</span>
+                            <strong class="text-slate-900">Signées (Biard, Faniel, Blaise, etc.)</strong>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Validation :</span>
+                            <strong class="text-slate-900">Revue par les pairs (Peer-review)</strong>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Statut institutionnel :</span>
+                            <strong class="text-slate-900">Fondé en 1958, référence juridique</strong>
+                        </li>
+                    </ul>
+                    <div class="p-2.5 bg-indigo-50/50 rounded-lg text-[11px] text-indigo-950">
+                        ✅ Garantit une autorité scientifique incontestable et une traçabilité juridique devant les tribunaux ou parlements.
+                    </div>
+                </div>
+
+                <!-- Sociopo Governance -->
+                <div class="bg-white p-5 rounded-2xl border border-teal-100 shadow-sm space-y-3">
+                    <div class="flex items-center space-x-2 text-teal-800 font-bold text-sm border-b border-teal-50 pb-2">
+                        <span>🤖</span>
+                        <h4>Sociopo : Laboratoire Citoyen Assisté par IA</h4>
+                    </div>
+                    <ul class="text-xs text-slate-600 space-y-2">
+                        <li class="flex items-center justify-between">
+                            <span>Rédaction :</span>
+                            <strong class="text-slate-900">Collective et anonyme (CCPLC / ouaisfi.eu)</strong>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Ingénierie éditoriale :</span>
+                            <strong class="text-slate-900">Assistée par LLM (GPTPardi / Claude)</strong>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Production de l'Archipel :</span>
+                            <strong class="text-slate-900">166–226 dépôts GitHub Pages</strong>
+                        </li>
+                        <li class="flex items-center justify-between">
+                            <span>Neutralité axiologique :</span>
+                            <strong class="text-slate-900">Sections « Lectures contradictoires »</strong>
+                        </li>
+                    </ul>
+                    <div class="p-2.5 bg-teal-50/50 rounded-lg text-[11px] text-teal-950">
+                        ⚡ Malgré la posture militante du portail parent (<code class="bg-white px-1">ouaisfi.eu</code>), Sociopo applique un cordon de neutralité rigoureux, tout en restant une source de seconde main sans signature nominative.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: Recommandateur d'Usage -->
+        <section id="recommandateur" class="bg-gradient-to-br from-slate-900 to-teal-950 text-white rounded-2xl p-6 sm:p-8 shadow-md space-y-6">
+            <div class="max-w-2xl space-y-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-teal-400">Guide Pratique d'Arbitrage</span>
+                <h3 class="text-2xl font-bold">Quel outil choisir selon votre besoin ?</h3>
+                <p class="text-xs sm:text-sm text-slate-300">
+                    Sélectionnez votre profil ou votre objectif direct pour obtenir la recommandation d'usage formulée par l'évaluation critique.
+                </p>
+            </div>
+
+            <!-- Profile Selector Buttons -->
+            <div class="flex flex-wrap gap-2" id="profile-selector">
+                <button data-profile="etudiant" class="profile-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-teal-600 text-white shadow">
+                    🎓 Étudiant / Secondaire & Bac
+                </button>
+                <button data-profile="chercheur" class="profile-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    🔬 Chercheur / Master & Thèse
+                </button>
+                <button data-profile="journaliste" class="profile-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    📰 Journaliste / Veille Conjoncture
+                </button>
+                <button data-profile="juriste" class="profile-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    ⚖️ Juriste / Constitutionnaliste
+                </button>
+                <button data-profile="citoyen" class="profile-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-800 text-slate-300 hover:bg-slate-700">
+                    🙋 Citoyen Curieux
+                </button>
+            </div>
+
+            <!-- Recommendation Display Card -->
+            <div id="recommendation-card" class="bg-white/10 backdrop-blur-md rounded-xl p-5 border border-white/10 space-y-3">
+                <!-- Dynamically filled by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-cream-200 mt-12 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p>
+                Application interactive basée sur l'<em>Évaluation critique de Sociopo face au Vocabulaire politique du CRISP</em> (Données arrêtées au 1er octobre 2026).
+            </p>
+            <p class="text-[11px] text-slate-400">
+                Sources : <code class="bg-slate-100 text-slate-600 px-1">ouaisfieu.github.io/sociopo/</code> • <code class="bg-slate-100 text-slate-600 px-1">vocabulairepolitique.be</code> • Analyse sous licence CC BY 4.0.
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // --- DATA STORE ---
+
+        // 1. Radar Chart Data (6 Axes)
+        const axesData = {
+            labels: [
+                'Autorité Scientifique',
+                'Rigueur Juridique',
+                'Fraîcheur (2026)',
+                'Ingénierie Pédagogique',
+                'Interconnexion / Graphe',
+                'Open Data / Multilinguisme'
+            ],
+            crispScores: [5.0, 5.0, 2.5, 2.0, 3.0, 2.0],
+            sociopoScores: [2.0, 3.5, 5.0, 5.0, 5.0, 5.0],
+            details: [
+                {
+                    title: "1. Autorité Scientifique & Traçabilité Éditoriale",
+                    crisp: "5/5 — Organisme indépendant fondé en 1958, chercheurs permanents identifiés (Biard, Faniel, Blaise, etc.). Référence académique incontestée.",
+                    sociopo: "2/5 — Rédaction collective anonyme issue du laboratoire citoyen ouaisfi.eu/CCPLC assistée par IA (Claude/GPTPardi). Aucune caution nominative.",
+                    verdict: "CRISP l'emporte sans réserve. Sociopo ne peut pas servir de source primaire académique."
+                },
+                {
+                    title: "2. Rigueur Technico-Juridique & Procédurale",
+                    crisp: "5/5 — Maîtrise parfaite des quorums constitutionnels, des 3 sonnettes d'alarme, de la quasi-équipollence des ordonnances bruxelloises.",
+                    sociopo: "3.5/5 — Définitions exactes et synthétiques, mais lissage des exceptions juridiques fines en raison du format condensé (1 sentence + résumé).",
+                    verdict: "CRISP domine pour l'analyse du droit constitutionnel et des règles procédurales strictes."
+                },
+                {
+                    title: "3. Fraîcheur & Synchronisation Conjoncturelle (Oct. 2026)",
+                    crisp: "2.5/5 — Inégale. Notices arrêtées en 2018-2021, plusieurs fiches bloquées (« en cours de mise à jour »), notice « Loi » incomplète.",
+                    sociopo: "5/5 — Intégralement synchronisé au 1er octobre 2026 : Gouvernement De Wever (Arizona), crise bruxelloise Dilliès, renommage Open Vld en Anders.",
+                    verdict: "Sociopo surpasse nettement le CRISP comme tableau de bord de la Belgique politique de 2026."
+                },
+                {
+                    title: "4. Ingénierie Pédagogique & Lisibilité Visuelle",
+                    crisp: "2/5 — Abécédaire textuel classique avec lecture audio, mais totalement dépourvu de visualisations, schémas ou simulateurs.",
+                    sociopo: "5/5 — Remarquable. 11 outils interactifs (calculateur D'Hondt/Imperiali, simulateur de coalitions, lasagne institutionnelle, flashcards).",
+                    verdict: "Sociopo réalise pleinement sa promesse (« La Belgique politique, enfin lisible »)."
+                },
+                {
+                    title: "5. Couverture Fonctionnelle & Interconnexion",
+                    crisp: "3/5 — Centré sur la terminologie. Les compositions gouvernementales et l'actionnariat sont séparés sur d'autres portails du CRISP.",
+                    sociopo: "5/5 — Graphe sémantique unifié relient 592 notions, 42 partis, 146 personnalités, 76 gouvernements, 37 élections et 15 dossiers.",
+                    verdict: "Sociopo offre une expérience encyclopédique intégrée beaucoup plus fluide."
+                },
+                {
+                    title: "6. Architecture Technique, Multilinguisme & Open Data",
+                    crisp: "2/5 — Site standard francophone avec rares entrées NL. Reproduction non commerciale autorisée mais pas d'export structuré.",
+                    sociopo: "5/5 — Site statique sans cookie, traduction systématique FR/NL/DE/EN, thésaurus exportable en SKOS (Turtle/JSON-LD), licence CC BY 4.0 & code MIT.",
+                    verdict: "Sociopo établit un standard technique exemplaire pour les humanités numériques."
+                }
+            ]
+        };
+
+        // 2. Doctrinal Comparison Data
+        const doctrinalData = {
+            sonnette: {
+                title: "🚨 Sonnette d'alarme constitutionnelle",
+                crisp: {
+                    badge: "Rigueur Maximale",
+                    content: "Distingue rigoureusement 3 mécanismes : 1° Sonnette fédérale (art. 54 Const., 3/4 du groupe linguistique, suspension 30j, inapplicable aux budgets, activée en 1985 et 2010) ; 2° Sonnette bruxelloise (art. 31/54 loi 1989) ; 3° Sonnette idéologique/philosophique dans les Parlements de Communauté."
+                },
+                sociopo: {
+                    badge: "Synthèse Pédagogique",
+                    content: "Classée comme Procédure : « Procédure par laquelle les trois quarts des membres d'un groupe linguistique... ». Reliée aux fiches Groupe linguistique, Majorité spéciale et 1re Réforme de l'État. Ne détaille pas les 3 types distincts."
+                },
+                verdict: "Nette supériorité du CRISP pour l'analyse constitutionnelle fine."
+            },
+            cordon: {
+                title: "🛡️ Cordon Sanitaire (Politique vs Médiatique)",
+                crisp: {
+                    badge: "Précision Juridique",
+                    content: "Notice signée (B. Biard). Distingue le cordon politique (protocole 1989) et le cordon médiatique en FWB (règlement du CSA de 2012 doté d'une force juridique contraignante). Démontre pourquoi les coalitions communales d'octobre 2024 (Ranst, Izegem) ne rompent pas le cordon au niveau national."
+                },
+                sociopo: {
+                    badge: "Modélisation Ludifiée",
+                    content: "Propose une définition synthétique, intègre le cordon comme paramètre ajustable dans le Simulateur de Coalitions et lui consacre un dossier (« Le cordon sanitaire à l'épreuve »). Qualification moins précise sur le plan juridique."
+                },
+                verdict: "Avantage CRISP sur la qualification juridique ; avantage Sociopo sur la simulation."
+            },
+            federalisme: {
+                title: "🏛️ Fédéralisme, Lois Spéciales & Équipollence",
+                crisp: {
+                    badge: "Analyse Doctrinale",
+                    content: "Décompose les 4 principes théoriques du fédéralisme et les confronte aux singularités belges (absence de primus inter pares, quasi-équipollence des ordonnances bruxelloises). Détaille les 3 conditions cumulatives de l'art. 4 de la Constitution."
+                },
+                sociopo: {
+                    badge: "Structure Modulaire",
+                    content: "Définit le Fédéralisme de dissociation (1970–2014) et isole des entrées granulaires pour chaque loi spéciale (8 août 1980, 12 janvier 1989), le Décret, l'Ordonnance, et propose un dossier « Un fédéralisme centrifuge »."
+                },
+                verdict: "Équilibre : CRISP sur la dogmatique, Sociopo sur la modularité des fiches."
+            },
+            concertation: {
+                title: "🤝 Concertation Sociale & Relations Collectives",
+                crisp: {
+                    badge: "Distinction Typologique",
+                    content: "Opère la distinction conceptuelle cruciale entre négociation sociale (bipartite paritaire), concertation (tripartite avec gouvernement) et consultation. Mettre en garde contre l'inversion sémantique dans la fonction publique."
+                },
+                sociopo: {
+                    badge: "Analyse Dynamic 2026",
+                    content: "Englobe négociation et concertation sous un terme générique (approximation relevée par le CRISP), mais surpasse le CRISP dans son dossier « La concertation sociale sous tutelle ? » analysant l'érosion du paritarisme de 1996 à 2026."
+                },
+                verdict: "CRISP meilleur sur la définition stricte, Sociopo sur la dynamique socio-économique 2026."
+            },
+            clivages: {
+                title: "🧱 Clivages, Piliers & Démocratie Consociative",
+                crisp: {
+                    badge: "Généalogie Sociologique",
+                    content: "Rattache les 4 clivages historiques au modèle européen et identifie l'émergence d'un clivage production-environnement. Détaille le poids financier des structures (MRBB du Boerenbond) et le concept de « deux piliers et demi »."
+                },
+                sociopo: {
+                    badge: "Réseau Conceptuel",
+                    content: "Définit explicitement le modèle d'Arend Lijphart (coalitions larges, veto mutuel), découpe les notices par monde (catholique, socialiste, libéral, MOC) et propose un dossier « La pilarisation aujourd'hui : déclin ou mutation ? »."
+                },
+                verdict: "Équilibre de très haut niveau entre les deux plateformes."
+            }
+        };
+
+        // 3. Profiles Recommendations Data
+        const profileData = {
+            etudiant: {
+                title: "🎓 Recommandation pour Étudiant (Secondaire, Bac 1-3, Haute École)",
+                primary: "Sociopo (sociopo.github.io)",
+                reason: "Sociopo est l'outil d'apprentissage idéal. Sa définition en une phrase, ses 11 simulateurs (calculateur D'Hondt, lasagne institutionnelle) et ses flashcards permettent d'assimiler la structure belge de manière ludique et intuitive.",
+                protocol: "Utilisez Sociopo pour réviser vos cours, comprendre la répartition des compétences et tester des combinaisons de coalitions. Référez-vous au CRISP uniquement si votre professeur exige des citations d'auteurs."
+            },
+            chercheur: {
+                title: "🔬 Recommandation pour Chercheur & Universitaire (Master, Doctorat)",
+                primary: "Vocabulaire politique du CRISP",
+                reason: "Le CRISP conserve une prééminence scientifique totale. Ses notices rédigées et signées par des chercheurs permanents font foi dans la littérature académique et garantissent la précision des règles constitutionnelles.",
+                protocol: "Citez le CRISP dans vos travaux et bibliographies. Utilisez Sociopo comme outil secondaire de veille pour naviguer rapidement dans les gouvernements récents (2025-2026) ou exporter le thésaurus SKOS."
+            },
+            journaliste: {
+                title: "📰 Recommandation pour Journaliste & Analyste Conjoncturel",
+                primary: "Usage Combiné (Sociopo pour l'actu, CRISP pour le cadre)",
+                reason: "Sociopo offre le tableau de bord le plus à jour de la Belgique en 2026 (gouvernement De Wever/Arizona, crise Dilliès, renommage Anders). Le CRISP vous fournit la qualification juridique exacte en cas de crise constitutionnelle.",
+                protocol: "Consultez Sociopo pour vérifier la composition d'un exécutif ou l'historique d'un parti en 10 secondes. Vérifiez la notice du CRISP lors de la rédaction d'articles de fond sur des réformes d'État."
+            },
+            juriste: {
+                title: "⚖️ Recommandation pour Juriste, Avocat & Constitutionnaliste",
+                primary: "Vocabulaire politique du CRISP",
+                reason: "Seul le CRISP offre la précision technico-juridique requise pour l'analyse des normes (quorums, jurisprudence du Conseil d'État, distinction exacte des trois sonnettes d'alarme).",
+                protocol: "Basez l'ensemble de vos mémoires et analyses sur le CRISP. Sociopo simplifie parfois des exceptions juridiques pour des motifs pédagogiques."
+            },
+            citoyen: {
+                title: "🙋 Recommandation pour Citoyen Curieux & Éducation Permanente",
+                primary: "Sociopo (sociopo.github.io)",
+                reason: "Sociopo répond exactement à son slogan : « La Belgique politique, enfin lisible ». Son accès par cas pratiques, ses cartes interactives et son absence complète de traçage publicitaire en font le compagnon citoyen parfait.",
+                protocol: "Explorez la « Lasagne institutionnelle » pour savoir quelle entité gère vos impôts ou permis, et utilisez le simulateur de coalitions pour comprendre les négociations du JT."
+            }
+        };
+
+
+        // --- INITIALIZATION & INTERACTIVITY ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // 1. Render Radar Chart
+            const ctxRadar = document.getElementById('axesRadarChart').getContext('2d');
+            const axesChart = new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: axesData.labels,
+                    datasets: [
+                        {
+                            label: 'CRISP',
+                            data: axesData.crispScores,
+                            backgroundColor: 'rgba(30, 58, 138, 0.2)',
+                            borderColor: '#1e3a8a',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#1e3a8a'
+                        },
+                        {
+                            label: 'Sociopo',
+                            data: axesData.sociopoScores,
+                            backgroundColor: 'rgba(13, 148, 136, 0.2)',
+                            borderColor: '#0d9488',
+                            borderWidth: 2,
+                            pointBackgroundColor: '#0d9488'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#e2e8f0' },
+                            pointLabels: {
+                                font: { size: 10, weight: 'bold' },
+                                color: '#334155'
+                            },
+                            suggestedMin: 0,
+                            suggestedMax: 5,
+                            ticks: { stepSize: 1, display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.dataset.label + ': ' + context.raw + ' / 5';
+                                }
+                            }
+                        }
+                    },
+                    onClick: (e, activeElements) => {
+                        if (activeElements.length > 0) {
+                            const index = activeElements[0].index;
+                            updateAxeDetail(index);
+                        }
+                    }
+                }
+            });
+
+            // Function to update Axe Details Panel
+            function updateAxeDetail(index) {
+                const item = axesData.details[index];
+                document.getElementById('selected-axe-badge').innerText = axesData.labels[index];
+                document.getElementById('axe-verdict-text').innerText = item.verdict;
+
+                const contentDiv = document.getElementById('axe-details-content');
+                contentDiv.innerHTML = `
+                    <h5 class="font-bold text-slate-900 border-b border-slate-100 pb-1">${item.title}</h5>
+                    <div class="space-y-2 pt-1">
+                        <div class="p-2.5 rounded-lg bg-indigo-50/70 border border-indigo-100">
+                            <span class="font-bold text-indigo-950 block text-xs">🎓 CRISP :</span>
+                            <p class="text-xs text-indigo-900 leading-relaxed">${item.crisp}</p>
+                        </div>
+                        <div class="p-2.5 rounded-lg bg-teal-50/70 border border-teal-100">
+                            <span class="font-bold text-teal-950 block text-xs">🚀 Sociopo :</span>
+                            <p class="text-xs text-teal-900 leading-relaxed">${item.sociopo}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Init with first Axe (Ingénierie Pédagogique - index 3)
+            updateAxeDetail(3);
+
+
+            // 2. Render Doughnut Chart (Sociopo Corpus)
+            const ctxDoughnut = document.getElementById('corpusDoughnutChart').getContext('2d');
+            new Chart(ctxDoughnut, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Notions & Concepts (592)', 'Personnalités (146)', 'Gouvernements (76)', 'Partis Politiques (42)', 'Élections (37)', 'Dossiers Clés (15)'],
+                    datasets: [{
+                        data: [592, 146, 76, 42, 37, 15],
+                        backgroundColor: [
+                            '#0d9488',
+                            '#14b8a6',
+                            '#2dd4bf',
+                            '#f59e0b',
+                            '#6366f1',
+                            '#ec4899'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 10 }
+                            }
+                        }
+                    }
+                }
+            });
+
+
+            // 3. Doctrinal Tabs Handler
+            const doctrinalBtns = document.querySelectorAll('.doctrinal-btn');
+            const doctrinalContent = document.getElementById('doctrinal-content');
+
+            function renderDoctrinal(topicKey) {
+                const topic = doctrinalData[topicKey];
+                doctrinalContent.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-indigo-100 pb-2">
+                            <h5 class="font-bold text-indigo-950 text-sm flex items-center space-x-1.5">
+                                <span>🎓</span> <span>CRISP (vocabulairepolitique.be)</span>
+                            </h5>
+                            <span class="text-[10px] bg-indigo-100 text-indigo-900 font-semibold px-2 py-0.5 rounded">${topic.crisp.badge}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed bg-indigo-50/50 p-3 rounded-xl border border-indigo-100">
+                            ${topic.crisp.content}
+                        </p>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-teal-100 pb-2">
+                            <h5 class="font-bold text-teal-950 text-sm flex items-center space-x-1.5">
+                                <span>🚀</span> <span>Sociopo (sociopo.github.io)</span>
+                            </h5>
+                            <span class="text-[10px] bg-teal-100 text-teal-900 font-semibold px-2 py-0.5 rounded">${topic.sociopo.badge}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 leading-relaxed bg-teal-50/50 p-3 rounded-xl border border-teal-100">
+                            ${topic.sociopo.content}
+                        </p>
+                    </div>
+
+                    <div class="md:col-span-2 bg-cream-100 p-3 rounded-xl text-xs text-slate-700 font-medium text-center border border-cream-200">
+                        💡 <strong>Verdict Doctrinal :</strong> ${topic.verdict}
+                    </div>
+                `;
+            }
+
+            doctrinalBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    doctrinalBtns.forEach(b => {
+                        b.classList.remove('bg-teal-800', 'text-white', 'shadow-sm');
+                        b.classList.add('bg-cream-100', 'text-slate-700');
+                    });
+                    btn.classList.remove('bg-cream-100', 'text-slate-700');
+                    btn.classList.add('bg-teal-800', 'text-white', 'shadow-sm');
+
+                    const topicKey = btn.getAttribute('data-topic');
+                    renderDoctrinal(topicKey);
+                });
+            });
+
+            // Init Doctrinal Section
+            renderDoctrinal('sonnette');
+
+
+            // 4. Profiles Recommandateur Handler
+            const profileBtns = document.querySelectorAll('.profile-btn');
+            const recommendationCard = document.getElementById('recommendation-card');
+
+            function renderRecommendation(profileKey) {
+                const item = profileData[profileKey];
+                recommendationCard.innerHTML = `
+                    <div class="flex justify-between items-start border-b border-white/10 pb-3">
+                        <h4 class="font-bold text-base text-white">${item.title}</h4>
+                        <span class="text-xs bg-teal-500/20 text-teal-300 font-mono px-2 py-1 rounded border border-teal-500/30">
+                            Recommandation : ${item.primary}
+                        </span>
+                    </div>
+
+                    <div class="space-y-2 text-xs sm:text-sm">
+                        <div>
+                            <strong class="text-teal-300 block mb-1">Pourquoi ce choix ?</strong>
+                            <p class="text-slate-200 leading-relaxed">${item.reason}</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <strong class="text-amber-300 block mb-1">Protocol d'Usage Optimisé :</strong>
+                            <p class="text-slate-300 leading-relaxed">${item.protocol}</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            profileBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    profileBtns.forEach(b => {
+                        b.classList.remove('bg-teal-600', 'text-white', 'shadow');
+                        b.classList.add('bg-slate-800', 'text-slate-300');
+                    });
+                    btn.classList.remove('bg-slate-800', 'text-slate-300');
+                    btn.classList.add('bg-teal-600', 'text-white', 'shadow');
+
+                    const profileKey = btn.getAttribute('data-profile');
+                    renderRecommendation(profileKey);
+                });
+            });
+
+            // Init Recommendation
+            renderRecommendation('etudiant');
+
+        });
+    </script>
+</body>
+</html>
